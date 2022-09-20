@@ -132,7 +132,8 @@ http://192.168.56.11:8048/
 
 下载地址=<https://www.kafkatool.com/download2/offsetexplorer_64bit.exe>
 
-##### 1.2.1.2.连接配置：
+**连接配置**：
+
 * properties-> cluster name = `mykafka（任意）`  
 * properties-> kafka cluster version = `2.8`  
 * security -> type = `SASL Plaintext`  
@@ -142,20 +143,20 @@ http://192.168.56.11:8048/
 
 配置完成后，点击`connect`  
 
-##### 1.2.1.3.查看数据
+**查看数据**: 
 若需要查看topic中的数据，则点击topic，在`Properties` -> Content Types -> key和value 都设置成 String -> 点击update  
 
 切换到`data`中后可查看数据
 
-#### 1.2.2.java代码连接示例
+#### 3.5.1.java代码连接示例
 
-##### 1.2.2.1.依赖引入
+**依赖引入**
 ```groovy
 // 以下为gradle方式引入，maven引入请自行转换为xml
 compile "org.apache.kafka:kafka-clients:2.2.1"
 ```
 
-##### 1.2.2.2.定义公共类-KafkaHelper
+**定义公共类-KafkaHelper**
 ```java
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
@@ -188,7 +189,7 @@ public class KafkaHelper {
 }
 ```
 
-##### 1.2.2.3.定义消息生产者
+**定义消息生产者**
 ```java
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -212,7 +213,7 @@ public class KafkaProducer {
 }
 ```
 
-##### 1.2.2.3.定义消息消费者
+**定义消息消费者**
 ```java
 /**
  * kafka消息消费者测试
