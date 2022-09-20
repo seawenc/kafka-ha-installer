@@ -54,7 +54,7 @@ docker save bitnami/zookeeper:3.6.3  bitnami/kafka:2.8.1 seawenc/efak:3.0.1 -o h
 docker load -i  ha-kafka.images
 ```
 
-### 3.1.目录文件说明
+### 3.2.目录文件说明
 ```
 ├── bin                         : 所有脚本目录
 │   ├── common.sh               : 通用工具脚本，无需显式调用
@@ -79,7 +79,7 @@ docker load -i  ha-kafka.images
 ├── debug                        : kafka与zookeeper调试脚本
 ```
 
-### 3.2.配置文件准备 
+### 3.3.配置文件准备 
 * 1.`conf/config.sh`:
 ```shell script
 ###############################0.参数配置##########################
@@ -107,7 +107,7 @@ efak_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -1`
 * 2.`conf/efak.properties`: 监控工具efak的配置文件，**可不用修改**
 * 3.`conf/jaas.conf`: jaas认证文件，若不用新加kafka用户，**则可不用修改**
 
-### 3.3.开始安装
+### 3.4.开始安装
 ```shell script
 # 步骤1：配置服务器之前的免密
 sh bin/step1_unpwd.sh
@@ -122,7 +122,7 @@ sh bin/step3_install_efak.sh
 > 1. `kafka`,`zookeeper`,`efak`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
 > 2. 若安装过程中状态检查未通过，则请按提示查看日志，解决后继续
 
-### 3.4.验证安装结果
+### 3.5.验证安装结果
 
 获得： step3_install_kafka.sh 此脚本的`运行过程中打印出的`**最后三句脚本**，在已安装kafka的节点上执行  
 ```
