@@ -61,6 +61,7 @@ git clone git@github.com:sewenc/kafka-ha-installer.git
 │   ├── efak.properties         : 监控工具efak的配置文件，可不用修改
 │   └── jaas.conf               : jaas认证文件，若不用新加kafka用户，则可不用修改
 ├── docs                        : 项目文档目录
+├── debug                        : kafka与zookeeper调试脚本
 ```
 
 ### 3.2.配置文件准备 
