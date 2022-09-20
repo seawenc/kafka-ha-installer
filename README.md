@@ -1,7 +1,8 @@
 # v2.kafka-ha-docker一键安装安装使用指南
 ## 1.说明
 本方案，需要至少三台服务器，每台服务器需要安装kafka与zookeeper，监控工具efak将安装在第一台
-### 相关组件说明
+
+相关组件说明:  
 **若想修改一些默认参数，请看官方说明**
 * 1.zookeeper
 docker地址：<https://hub.docker.com/r/bitnami/zookeeper>
@@ -33,13 +34,27 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 **v1.3.0**
 > * 1.添加kafka监控程序efak
 
-## 3.安装
+## 3.安装准备
 
 ### 3.0.安装脚本获取
 ```shell script
-git clone git@github.com:sewenc/kafka-ha-installer.git
+git clone https://github.com/sewenc/kafka-ha-installer.git
+#或者：
+git clone https://gitee.com/seawenc/kafka-ha-installer.git
 ```
-### 3.1.目录文件说明
+### 3.1.离线安装准备
+**若可安装的服务的主机可连网，则请跳过此部署**
+```shell script
+# 找一台可连网已安装docker的服务器,执行以下指令：
+docker pull bitnami/zookeeper:3.6.3
+docker pull bitnami/kafka:2.8.1
+docker pull seawenc/efak:3.0.1
+docker save bitnami/zookeeper:3.6.3  bitnami/kafka:2.8.1 seawenc/efak:3.0.1 -o ha-kafka.images
+# 获得到镜像压缩包hakafka.tar后，上传到，需安装kafka的机器上，并在所有节点上执行：
+docker load -i  ha-kafka.images
+```
+
+### 3.2.目录文件说明
 ```
 ├── bin                         : 所有脚本目录
 │   ├── common.sh               : 通用工具脚本，无需显式调用
@@ -64,7 +79,7 @@ git clone git@github.com:sewenc/kafka-ha-installer.git
 ├── debug                        : kafka与zookeeper调试脚本
 ```
 
-### 3.2.配置文件准备 
+### 3.3.配置文件准备 
 * 1.`conf/config.sh`:
 ```shell script
 ###############################0.参数配置##########################
@@ -92,7 +107,7 @@ efak_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -1`
 * 2.`conf/efak.properties`: 监控工具efak的配置文件，**可不用修改**
 * 3.`conf/jaas.conf`: jaas认证文件，若不用新加kafka用户，**则可不用修改**
 
-### 3.3.开始安装
+### 3.4.开始安装
 ```shell script
 # 步骤1：配置服务器之前的免密
 sh bin/step1_unpwd.sh
@@ -107,7 +122,7 @@ sh bin/step3_install_efak.sh
 > 1. `kafka`,`zookeeper`,`efak`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
 > 2. 若安装过程中状态检查未通过，则请按提示查看日志，解决后继续
 
-### 3.4.验证安装结果
+### 3.5.验证安装结果
 
 获得： step3_install_kafka.sh 此脚本的`运行过程中打印出的`**最后三句脚本**，在已安装kafka的节点上执行  
 ```
@@ -126,14 +141,14 @@ JMX_PORT=9000 kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,19
 http://192.168.56.11:8048/
 默认用户名密码：admin/123456 (**请及时修改密码**)
 
-### 3.5.连接方式
+## 4.连接方式
 
-#### 3.5.1.kafkatool工具连接
+### 4.1.kafkatool工具连接
 **此方式只用于查看kafka情况时用**
 
 下载地址=<https://www.kafkatool.com/download2/offsetexplorer_64bit.exe>
 
-**连接配置**：
+#### 连接配置
 
 * properties-> cluster name = `mykafka（任意）`  
 * properties-> kafka cluster version = `2.8`  
@@ -144,20 +159,20 @@ http://192.168.56.11:8048/
 
 配置完成后，点击`connect`  
 
-**查看数据**: 
+#### 查看数据
 若需要查看topic中的数据，则点击topic，在`Properties` -> Content Types -> key和value 都设置成 String -> 点击update  
 
 切换到`data`中后可查看数据
 
-#### 3.5.1.java代码连接示例
+### 4.2.java代码连接示例
 
-**依赖引入**
+#### 依赖引入
 ```groovy
 // 以下为gradle方式引入，maven引入请自行转换为xml
 compile "org.apache.kafka:kafka-clients:2.2.1"
 ```
 
-**定义公共类-KafkaHelper**
+#### 定义公共类-KafkaHelper
 ```java
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
@@ -190,7 +205,7 @@ public class KafkaHelper {
 }
 ```
 
-**定义消息生产者**
+#### 定义消息生产者
 ```java
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -214,7 +229,7 @@ public class KafkaProducer {
 }
 ```
 
-**定义消息消费者**
+#### 定义消息消费者
 ```java
 /**
  * kafka消息消费者测试
@@ -239,5 +254,6 @@ public class KafkaConsumer {
     }
 }
 ```
-**验证：** 先启动`KafkaConsumer`,再启动`KafkaProducer`,看是否能收消息
+#### 验证
+先启动`KafkaConsumer`,再启动`KafkaProducer`,看是否能收消息
 
