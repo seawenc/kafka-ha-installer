@@ -1,7 +1,8 @@
 # v2.kafka-ha-docker一键安装安装使用指南
 ## 1.说明
 本方案，需要至少三台服务器，每台服务器需要安装kafka与zookeeper，监控工具efak将安装在第一台
-### 相关组件说明
+
+相关组件说明:  
 **若想修改一些默认参数，请看官方说明**
 * 1.zookeeper
 docker地址：<https://hub.docker.com/r/bitnami/zookeeper>
@@ -126,14 +127,14 @@ JMX_PORT=9000 kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,19
 http://192.168.56.11:8048/
 默认用户名密码：admin/123456 (**请及时修改密码**)
 
-### 3.5.连接方式
+## 4.连接方式
 
-#### 3.5.1.kafkatool工具连接
+### 4.1.kafkatool工具连接
 **此方式只用于查看kafka情况时用**
 
 下载地址=<https://www.kafkatool.com/download2/offsetexplorer_64bit.exe>
 
-**连接配置**：
+#### 连接配置
 
 * properties-> cluster name = `mykafka（任意）`  
 * properties-> kafka cluster version = `2.8`  
@@ -144,20 +145,20 @@ http://192.168.56.11:8048/
 
 配置完成后，点击`connect`  
 
-**查看数据**: 
+#### 查看数据
 若需要查看topic中的数据，则点击topic，在`Properties` -> Content Types -> key和value 都设置成 String -> 点击update  
 
 切换到`data`中后可查看数据
 
-#### 3.5.1.java代码连接示例
+### 4.2.java代码连接示例
 
-**依赖引入**
+#### 依赖引入
 ```groovy
 // 以下为gradle方式引入，maven引入请自行转换为xml
 compile "org.apache.kafka:kafka-clients:2.2.1"
 ```
 
-**定义公共类-KafkaHelper**
+#### 定义公共类-KafkaHelper
 ```java
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
@@ -190,7 +191,7 @@ public class KafkaHelper {
 }
 ```
 
-**定义消息生产者**
+#### 定义消息生产者
 ```java
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -214,7 +215,7 @@ public class KafkaProducer {
 }
 ```
 
-**定义消息消费者**
+#### 定义消息消费者
 ```java
 /**
  * kafka消息消费者测试
@@ -239,5 +240,6 @@ public class KafkaConsumer {
     }
 }
 ```
-**验证：** 先启动`KafkaConsumer`,再启动`KafkaProducer`,看是否能收消息
+#### 验证
+先启动`KafkaConsumer`,再启动`KafkaProducer`,看是否能收消息
 
