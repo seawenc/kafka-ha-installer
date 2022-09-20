@@ -38,7 +38,9 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 
 ### 3.0.安装脚本获取
 ```shell script
-git clone git@github.com:sewenc/kafka-ha-installer.git
+git clone https://github.com/sewenc/kafka-ha-installer.git
+#或者：
+git clone https://gitee.com/seawenc/kafka-ha-installer.git
 ```
 ### 3.1.目录文件说明
 ```
