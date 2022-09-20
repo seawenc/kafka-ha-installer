@@ -19,7 +19,7 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
 > * 2.监控工具efak新增kafka报警通道
 
-**v2.0.0**
+**v2.0.0**.2022-09-20
 > * 1.将安装脚本更改为docker方案安装
 > * 2.添加zookeeper认证
 > * 3.精简掉5个配置项
@@ -27,11 +27,11 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 > * 5.新增kafka jmx监控
 > * 6.解决ip最后一段相同时的bug
 
-**v1.4.0**
+**v1.4.0**.2022-05-14
 > * 1.解决存在的两个安全问题。
 > * 2.提取数据目录为可配置变量
 
-**v1.3.0**
+**v1.3.0**.2022-04-12
 > * 1.添加kafka监控程序efak
 
 ## 3.安装准备
