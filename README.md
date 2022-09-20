@@ -22,7 +22,7 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 > * 1.将安装脚本更改为docker方案安装
 > * 2.添加zookeeper认证
 > * 3.精简掉5个配置项
-> * 4.修复efak不支持又ip配置问题
+> * 4.修复efak不支持双ip配置问题
 > * 5.新增kafka jmx监控
 > * 6.解决ip最后一段相同时的bug
 
