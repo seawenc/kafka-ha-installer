@@ -34,7 +34,7 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 **v1.3.0**
 > * 1.添加kafka监控程序efak
 
-## 3.安装
+## 3.安装准备
 
 ### 3.0.安装脚本获取
 ```shell script
@@ -42,6 +42,18 @@ git clone https://github.com/sewenc/kafka-ha-installer.git
 #或者：
 git clone https://gitee.com/seawenc/kafka-ha-installer.git
 ```
+### 3.1.离线安装准备
+**若可安装的服务的主机可连网，则请跳过此部署**
+```shell script
+# 找一台可连网已安装docker的服务器,执行以下指令：
+docker pull bitnami/zookeeper:3.6.3
+docker pull bitnami/kafka:2.8.1
+docker pull seawenc/efak:3.0.1
+docker save bitnami/zookeeper:3.6.3  bitnami/kafka:2.8.1 seawenc/efak:3.0.1 -o hakafka.tar
+# 获得到镜像压缩包hakafka.tar后，上传到，需安装kafka的机器上，并在所有节点上执行：
+docker load -i  hakafka.tar
+```
+
 ### 3.1.目录文件说明
 ```
 ├── bin                         : 所有脚本目录
