@@ -8,7 +8,7 @@ print_log info "#################第四步:1.安装与启动监控工具-efak ##
 function install_efak(){
     zk_ips=`echo ${!servers[*]} |sed 's/ /:2181,/g' | awk '{print $1":2181"}'`  
     print_log warn "2.1.在$efak_ip 节点安装efak"
-    ssh $efak_ip "rm -rf $BASE_PATH/efak* $DATA_DIR/efak"
+    ssh $efak_ip "rm -rf $BASE_PATH/efak*"
     ssh $efak_ip "mkdir -p $BASE_PATH/efak $DATA_DIR/efak"
     scp  $installpath/conf/efak.properties $efak_ip:$BASE_PATH/efak/system-config.properties
     ssh $efak_ip "sed -i 's#@ZK_CONNECT@#${zk_ips}#g' $BASE_PATH/efak/system-config.properties"

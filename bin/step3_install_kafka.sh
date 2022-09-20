@@ -15,7 +15,7 @@ for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "2.1.在$ip 节点安装kafka"
   # 先停止kafka 解决重复启动问题
-  ssh $ip  "rm -rf $DATA_DIR/kafka/* $BASE_PATH/kafka/*"
+  ssh $ip  "rm -rf $BASE_PATH/kafka/*"
   ssh $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
   ssh $ip  "chmod 777 $DATA_DIR/kafka"
   scp ../conf/jaas.conf $ip:$BASE_PATH/kafka/

@@ -19,12 +19,11 @@ FOR_SEQ=1
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
   print_log warn "2.1.在$ip 节点安装zookeeper"
-  ssh $ip  "rm -rf $DATA_DIR/zookeeper/* $BASE_PATH/zookeeper/*"
   ssh $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
   ## 写入集群节点信息
   print_log info "开始启动$ip 的zookeeper"
+  ssh $ip  "rm -rf $BASE_PATH/zookeeper/*"
   ssh $ip "echo 'docker rm -f zookeeper' > $BASE_PATH/zookeeper/run.sh"
-
   ssh $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
            --add-host node1:192.168.56.11 \
