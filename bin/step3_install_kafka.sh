@@ -28,9 +28,6 @@ do
   ssh $ip "echo 'docker run --name kafka -d --restart=unless-stopped \
            -e ALLOW_PLAINTEXT_LISTENER=yes \
            -e KAFKA_BROKER_ID=${FOR_SEQ} \
-           --add-host node1:192.168.56.11 \
-           --add-host node2:192.168.56.12 \
-           --add-host node3:192.168.56.13 \
            -e KAFKA_MESSAGE_MAX_BYTES=100001200 -p 9999:9999 -p ${kafka_port}:${kafka_port} -p ${kafka_port_outside}:${kafka_port_outside} \
            -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \
            -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \
@@ -76,7 +73,7 @@ broker_list=`echo "${!servers[@]}"| sed "s# #:$kafka_port,#g" | sed "s#\\$#:$kaf
 print_log warn "请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性"
 print_log info "docker exec -ti kafka bash"
 print_log info "新建topic： test，设置分区数据为3,副本数为2"
-print_log info "JMX_PORT=9000 kafka-topics.sh --create --bootstrap-server $broker_list --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties"
+print_log info "KAFKA_JMX_OPTS="" kafka-topics.sh --create --bootstrap-server $broker_list --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties"
 print_log info "测试消息生产者与消费者"
-print_log info "JMX_PORT=9000 kafka-console-producer.sh --bootstrap-server $broker_list --topic test --producer.config /opt/bitnami/kafka/config/producer.properties"
-print_log info "JMX_PORT=9000 kafka-console-consumer.sh --bootstrap-server $broker_list --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties"
+print_log info "KAFKA_JMX_OPTS="" kafka-console-producer.sh --bootstrap-server $broker_list --topic test --producer.config /opt/bitnami/kafka/config/producer.properties"
+print_log info "KAFKA_JMX_OPTS="" kafka-console-consumer.sh --bootstrap-server $broker_list --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties"

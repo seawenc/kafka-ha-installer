@@ -26,9 +26,6 @@ do
   ssh $ip "echo 'docker rm -f zookeeper' > $BASE_PATH/zookeeper/run.sh"
   ssh $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
-           --add-host node1:192.168.56.11 \
-           --add-host node2:192.168.56.12 \
-           --add-host node3:192.168.56.13 \
            -p 2181:2181 -p 2888:2888 -p 3888:3888 \
            -v $DATA_DIR/zookeeper:/data \
            -v $DATA_DIR/zookeeper/logs:/logs \
