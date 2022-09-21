@@ -23,7 +23,7 @@ do
   ## 写入集群节点信息
   print_log info "开始启动$ip 的zookeeper"
   ssh $ip  "rm -rf $BASE_PATH/zookeeper/*"
-  ssh $ip "echo 'docker rm -f zookeeper' > $BASE_PATH/zookeeper/run.sh"
+  ssh $ip "echo 'docker rm zookeeper' > $BASE_PATH/zookeeper/run.sh"
   ssh $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
            -p 2181:2181 -p 2888:2888 -p 3888:3888 \

@@ -24,7 +24,7 @@ do
   ## 启动kafka 
   print_log info "开始启动$ip 的kafka"
   
-  ssh $ip "echo 'docker rm -f kafka' > $BASE_PATH/kafka/run.sh"
+  ssh $ip "echo 'docker rm kafka' > $BASE_PATH/kafka/run.sh"
   ssh $ip "echo 'docker run --name kafka -d --restart=unless-stopped \
            -e ALLOW_PLAINTEXT_LISTENER=yes \
            -e KAFKA_BROKER_ID=${FOR_SEQ} \
