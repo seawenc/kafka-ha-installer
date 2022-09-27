@@ -37,7 +37,9 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 ## 3.安装准备
 
 ### 3.0.安装脚本获取
+
 ```shell script
+# 在任意一台服务器上下载安装脚本，若不能连网，则请直接手动下载源码
 git clone https://github.com/sewenc/kafka-ha-installer.git
 #或者：
 git clone https://gitee.com/seawenc/kafka-ha-installer.git
@@ -116,7 +118,7 @@ sh bin/step2_install_zk.sh
 # 步骤3：安装kafka
 sh bin/step3_install_kafka.sh
 # 步骤4：安装efak
-sh bin/step3_install_efak.sh
+sh bin/step4_install_efak.sh
 ```
 > 0. 安装过程中，请仔细阅读每一行日志
 > 1. `kafka`,`zookeeper`,`efak`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
