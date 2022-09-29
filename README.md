@@ -136,10 +136,10 @@ sh bin/step4_install_efak.sh
 # 请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性
 docker exec -ti kafka bash
 # 新建topic： test，设置分区数据为3,副本数为2
-KAFKA_JMX_OPTS="" kafka-topics.sh --create --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties                                                                                                                                                                                                 
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --create --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties                                                                                                                                                                                                 
 # 试消息生产者与消费者
-KAFKA_JMX_OPTS="" kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --producer.config /opt/bitnami/kafka/config/producer.properties
-KAFKA_JMX_OPTS="" kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --producer.config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties
 ```
 
 **若参接收到，则安装成功**
@@ -267,8 +267,16 @@ public class KafkaConsumer {
 
 ## 5.运维
 
-### 修改kafka消息默认的存储时间
-方法一：修改`step3_install_kafka.sh`添加两个参数后重新执行
+### 1.修改指定topic的消息存储时间
+```
+#修改topic：test的消息存储时间为48小时
+KAFKA_JMX_OPTS="" kafka-config.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --entity-name test --entity_type topics --add-config retention.hours=48 --command-config /opt/bitnami/kafka/config/producer.properties
 ```
 
+### 2.修改topic的分区数
+```shell script
+#修改分区数为3
+KAFKA_JMX_OPTS=""  kafka-topics.sh --alter  --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092  --topic test --partitions 3
+#查看分区与副本数
+KAFKA_JMX_OPTS="" kafka-topics.sh --describe --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test
 ```
