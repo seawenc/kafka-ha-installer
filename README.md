@@ -19,6 +19,9 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
 > * 2.监控工具efak新增kafka报警通道
 
+**v2.0.1**.2022-09-29
+> 将消息生存周期添加到配置文件中
+
 **v2.0.0**.2022-09-20
 > * 1.将安装脚本更改为docker方案安装
 > * 2.添加zookeeper认证
@@ -98,6 +101,8 @@ servers["192.168.56.13"]="192.168.55.13"
 kafka_port=9092
 # 外网kafka 端口
 kafka_port_outside=9093
+# kafka消息生存时间（单位小时）
+kafka_msg_storage_hours=84
 # kafka与zookeeper的共用一个账号密码
 zkkuser='admin'
 zkkpwd='aaBB1122'
@@ -259,3 +264,11 @@ public class KafkaConsumer {
 #### 验证
 先启动`KafkaConsumer`,再启动`KafkaProducer`,看是否能收消息
 
+
+## 5.运维
+
+### 修改kafka消息默认的存储时间
+方法一：修改`step3_install_kafka.sh`添加两个参数后重新执行
+```
+
+```

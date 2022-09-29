@@ -10,6 +10,8 @@ servers["192.168.56.12"]="192.168.55.12"
 servers["192.168.56.13"]="192.168.55.13"
 kafka_port=9092
 kafka_port_outside=9093
+# kafka消息生存时间（单位小时）
+kafka_msg_storage_hours=84
 # kafka与zookeeper的共用一个账号密码
 zkkuser='admin'
 zkkpwd='aaBB1122'

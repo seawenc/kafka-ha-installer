@@ -50,6 +50,8 @@ do
            -e KAFKA_ZOOKEEPER_USER=${zkkuser} \
            -e KAFKA_ZOOKEEPER_PASSWORD=${zkkpwd} \
            -e KAFKA_CFG_ADVERTISED_HOST_NAME=${ip} \
+            -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \
+            -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \
            -v ${DATA_DIR}/kafka:/bitnami/kafka \
             bitnami/kafka:2.8.1' >> $BASE_PATH/kafka/run.sh"
            # 若采用kafka加密认证，则加上以下参数
