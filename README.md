@@ -272,9 +272,9 @@ public class KafkaConsumer {
 KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --describe --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
 
 #2.修改topic：test的消息存储时间为48小时
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-config.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --entity-name test --entity_type topics --add-config retention.hours=48 --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --entity-name test --entity-type topics --add-config retention.ms=60000 --command-config /opt/bitnami/kafka/config/producer.properties
 #3.立刻删除过期数据
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topic.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --topic  test --config  cleanup.policy=delete
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
 
 #4.修改分区数为3
 KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
