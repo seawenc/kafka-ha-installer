@@ -55,8 +55,8 @@ git clone https://gitee.com/seawenc/kafka-ha-installer.git
 # 找一台可连网已安装docker的服务器,执行以下指令：
 docker pull bitnami/zookeeper:3.6.3
 docker pull bitnami/kafka:2.8.1
-docker pull seawenc/efak:3.0.1
-docker save bitnami/zookeeper:3.6.3  bitnami/kafka:2.8.1 seawenc/efak:3.0.1 -o ha-kafka.images
+docker pull seawenc/efak:3.0.2
+docker save bitnami/zookeeper:3.6.3  bitnami/kafka:2.8.1 seawenc/efak:3.0.2 -o ha-kafka.images
 # 获得到镜像压缩包hakafka.tar后，上传到，需安装kafka的机器上，并在所有节点上执行：
 docker load -i  ha-kafka.images
 ```
