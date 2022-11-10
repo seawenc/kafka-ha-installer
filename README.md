@@ -279,3 +279,34 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --bootstrap-server 192.168.56.11
 #4.修改分区数为3
 KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
 ```
+
+## 6.efak监控与报警
+efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
+
+本套环境新增kafka报警通道，报警设置只支持group未消费消息报警配置； 
+
+### 1.查看topic group未消费的数据
+
+![topic-lag](images/efak-lag1.png)
+
+![image-20221110142238278](images/efak-lag2.png)
+
+
+
+### 2.监控lag参数
+
+lag(滞后）是kafka消费队列性能监控的重要指标，lag的值越大，表示kafka的堆积越严重。
+
+#### 2.1.首先配置kafka报警通道
+
+![image-20221110142716435](images/efak-alarm-channel.png)
+
+
+
+#### 2.2.配置具体的group lag报警
+
+![image-20221110143039247](images/efak-alarm-conf.png)
+
+
+
+配置完成后，就可看到报警的topic:`KAFKA_LAG_ALARM`已经有数据了
