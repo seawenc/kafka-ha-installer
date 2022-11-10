@@ -297,18 +297,32 @@ efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
 
 ### 2.监控lag参数
 
-lag(滞后）是kafka消费队列性能监控的重要指标，lag的值越大，表示kafka的堆积越严重。
+`lag`(滞后）是kafka消费队列性能监控的重要指标，lag的值越大，表示kafka的堆积越严重。
 
-#### 2.1.首先配置kafka报警通道
+2.1.首先配置kafka报警通道
 
 ![image-20221110142716435](images/efak-alarm-channel.png)
 
 
-
-#### 2.2.配置具体的group lag报警
+2.2.配置具体的group lag报警
 
 ![image-20221110143039247](images/efak-alarm-conf.png)
 
-
-
 配置完成后，就可看到报警的topic:`KAFKA_LAG_ALARM`已经有数据了
+
+消息格式为:
+```json
+{
+    "alarmContent": "{\"cluster\":\"cluster1\",\"current\":94462,\"max\":10,\"topic\":\"test\",\"group\":\"group1\"}", 
+    "alarmStatus": "PROBLEM", 
+    "alarmCluster": "cluster1", 
+    "alarmId": 1, 
+    "alarmProject": "Consumer", 
+    "alarmTimes": "current(0), max(10)", 
+    "alarmLevel": "P1", 
+    "title": "kafka通道 alarm!", 
+    "type": "kafka", 
+    "alarmDate": "2022-11-10 14:09:01"
+}
+```
+其中: `alarmContent -> current:` 为`lag`的值
