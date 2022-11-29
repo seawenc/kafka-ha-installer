@@ -266,8 +266,9 @@ public class KafkaConsumer {
 #### 验证
 先启动`KafkaConsumer`,再启动`KafkaProducer`,看是否能收消息
 
-
 ## 5.运维
+
+### 5.1、常用指令
 
 ``` shell script
 #1.查看topic明细
@@ -282,7 +283,51 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --bootstrap-server 192.168.56.11
 KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
 ```
 
+### 5.2、kafka离线升级
+
+kafka2.8.1版本有漏洞，需要升级到2.8.2版本，升级方式:
+
+准备镜像（在**可连网的机器上**完成）：
+
+```bash
+# 下载镜像
+docker pull bitnami/kafka:2.8.2
+# 导出镜像
+docker save bitnami/kafka:2.8.2 > kafka2.8.2.image
+# 将文件上传到服务器
+```
+
+在**安装节点**执行：
+
+```bash
+#第一步：停止kafka
+sh bin/stop_kafka.sh
+# 第二步：修改安装脚本中的kafka的版本号改为2.8.2(此步骤若不重装，无太大意思)
+sed -i 's/2.8.1/2.8.2/g' step3_install_kafka.sh
+```
+
+在**kafka三台工作节点**上执行：
+
+```bash
+# 导入镜像
+docker load < kafka2.8.2.image
+# 第三步：在kafka的三台服务器上执行，修改版本号：,修改完成后，可检查run.sh中版本号是否已修改
+sed -i 's/2.8.1/2.8.2/g' {安装路径}/kafka/run.sh
+```
+
+在**安装节点**执行：
+
+```bash
+#第一步：停止kafka
+sh bin/start_kafka.sh
+```
+
+完成后查看efak查看kafka是否正常
+
+
+
 ## 6.efak监控与报警
+
 efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
 
 本套环境新增kafka报警通道，报警设置只支持group未消费消息报警配置； 
@@ -326,3 +371,8 @@ efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
 }
 ```
 其中: `alarmContent -> current:` 为`lag`的值
+
+
+
+
+
