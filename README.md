@@ -300,7 +300,7 @@ docker save bitnami/kafka:2.8.2 > kafka2.8.2.image
 在**安装节点**执行：
 
 ```bash
-#第一步：停止kafka
+# 第一步：停止kafka
 sh bin/stop_kafka.sh
 # 第二步：修改安装脚本中的kafka的版本号改为2.8.2(此步骤若不重装，无太大意思)
 sed -i 's/2.8.1/2.8.2/g' step3_install_kafka.sh
@@ -311,14 +311,14 @@ sed -i 's/2.8.1/2.8.2/g' step3_install_kafka.sh
 ```bash
 # 导入镜像
 docker load < kafka2.8.2.image
-# 第三步：在kafka的三台服务器上执行，修改版本号：,修改完成后，可检查run.sh中版本号是否已修改
+# 在kafka的三台服务器上执行，修改版本号：,修改完成后，可检查run.sh中版本号是否已修改
 sed -i 's/2.8.1/2.8.2/g' {安装路径}/kafka/run.sh
 ```
 
 在**安装节点**执行：
 
 ```bash
-#第一步：停止kafka
+# 停止kafka
 sh bin/start_kafka.sh
 ```
 
