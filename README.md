@@ -318,7 +318,7 @@ sed -i 's/2.8.1/2.8.2/g' {安装路径}/kafka/run.sh
 在**安装节点**执行：
 
 ```bash
-# 停止kafka
+# 启动kafka
 sh bin/start_kafka.sh
 ```
 
