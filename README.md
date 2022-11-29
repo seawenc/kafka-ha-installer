@@ -287,6 +287,10 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 192.1
 
 kafka2.8.1版本有漏洞，需要升级到2.8.2版本，升级方式:
 
+但是现在bitnami/kafka还没有2.8.2版本，因此下面的升级脚本不可行，等等官方升级
+
+
+
 准备镜像（在**可连网的机器上**完成）：
 
 ```bash
