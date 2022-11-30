@@ -19,7 +19,7 @@ chmod 700 ../.ssh
 #echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config
 
 function scp_ssh(){
-for ip in ${ALL_IPS}
+for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "2.1.请输入节点:$ip 的密码,进行免密配置:"
   scp -r ~/.ssh $ip:~/
