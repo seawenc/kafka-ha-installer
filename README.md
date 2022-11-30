@@ -15,10 +15,19 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 
 ## 2.版本更新记录
 
-**v2.2.0(计划中)**
+
+**v2.3.0(计划中)**
+
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
+
+**v2.2.0**.2022-11-30
+
+> 1.添加kafka升级文档
 >
+> 2.升级efak，支持将监控数据发送到kafka（具体请看6.3章节）
+
 **v2.1.0**.2022-11-10
+>
 > * 1.监控工具efak新增kafka报警通道
 
 **v2.0.1**.2022-09-29
@@ -370,6 +379,32 @@ sh run.sh
 
 
 
+### 5.3、efak升级
+
+当前版本为3.0.3, 若有新版本，请替换版本号
+
+```bash
+# 下载镜像
+docker pull seawenc/efak:3.0.3
+# 导出镜像
+docker save seawenc/efak:3.0.3 > efak3.0.3.image
+# 将文件上传到服务器
+```
+
+在efak节点上执行：
+
+```bash
+docker load < efak3.0.3.image
+# 修改启动脚本的版本号为3.0.3
+vi  {安装路径}/efak/run.sh
+# 重启
+sh {安装路径}/efak/run.sh
+```
+
+
+
+
+
 ## 6.efak监控与报警
 
 efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
@@ -414,6 +449,61 @@ efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
 }
 ```
 其中: `alarmContent -> current:` 为`lag`的值
+
+### 3.监控数据输出
+
+从版本 `seawenc/efak:3.0.3`支持，监控数据输出到kafka
+
+```json
+{
+    "brokersLeaderSkewed":33,  # 以下三个参数含义：
+    "brokersSkewed":0,         # https://blog.csdn.net/L13763338360/article/details/105427584
+    "brokersSpread":100,
+    "collectTime":"2022-11-30 10:28:00",
+    "consumers":[                # 消费者信息
+        {
+            "consumption1m":1432,         # 1分钟内消息，此消费都消费的消息数量
+            "group":"group1",             # group名称，相同的group共同消费一份数据
+            "lag":99872,                  # 还剩下多少数据没有被消费
+            "node":"192.168.56.12:9092",  # 它连接的是哪个节点
+            "offsets":[                   # 每个分区的消费明细
+                {
+                    "lag":33269,            # 在分区1上，还有多少消息未被消费
+                    "logSize":1,            # 没有太大意义，好像永远等于：partition的值
+                    "offset":189616,        # 当前offset你部署
+                    "owner":"192.168.56.1", # 消费者所在ip
+                    "partition":1           # 所在分区，一个分区一条数据，
+                },
+                ...
+            ]
+        }
+        ...        
+    ],
+    "partitions":[                # 分区明细
+        {
+            "isr":"[2,1]",        # 副本所在节点
+            "leader":2,           # 主副本你部署
+            "logSize":56217,      # 当前的数据条数
+            "partitionId":0,          # 分区编号
+            "preferredLeader":false,  # 是否是leader
+            "replicas":"[1, 2]",      # 与isr一致（重复）
+            "underReplicated":false   # 是否副本不足
+        },
+        ...
+    ],
+    "rows":168652,              # 现有数据量
+    "rows1m":3242,              # 1分钟内产生的数据量，
+    "storageSize":13.65,        # 所占空间大小，单位为：storagesizeUnit
+    "storagesizeUnit":"MB",     # 所占空间大小的单位
+    "topic":"test"              # topic名称
+}
+```
+
+关于指标`rows1m`：若上一分钟数据发生清理，暂时无法解决，此值将会小于0,应用程序需自行处理此问题
+
+默认以上监控数据会输出到topic:TOPIC_MONITOR,若想修改，则在配置文件中加入配置项,例：efak.monitor.topic=topic_monitor
+
+
 
 
 

@@ -19,7 +19,7 @@ function install_efak(){
     ssh $efak_ip "echo 'docker run --name efak --restart=always -p 8048:8048 -d \
                           -v ${DATA_DIR}/efak:/opt/app/efak/db \
                           -v $BASE_PATH/efak/system-config.properties:/opt/app/efak/conf/system-config.properties \
-                seawenc/efak:3.0.2' >> $BASE_PATH/efak/run.sh"
+                seawenc/efak:3.0.3' >> $BASE_PATH/efak/run.sh"
     ssh $efak_ip "chmod +x $BASE_PATH/efak/run.sh"
     print_log info "开始启动efak"
     ssh $efak_ip "sh $BASE_PATH/efak/run.sh"
