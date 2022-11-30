@@ -287,7 +287,11 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 192.1
 
 kafka2.8.1版本有漏洞，需要升级到2.8.2版本，升级方式:
 
-但是现在bitnami/kafka还没有2.8.2版本，因此下面的升级脚本不可行，等等官方升级
+
+
+#### 5.2.1、硬升级
+
+但是现在bitnami/kafka还没有2.8.2版本，因此下面的升级脚本不可行，需要等待官方升级才可用此方式
 
 
 
@@ -330,6 +334,42 @@ sh bin/start_kafka.sh
 
 
 
+#### 5.2.2、软升级
+
+若可硬升级，则用硬升级，若不能硬长，再用此法
+
+```
+# 在可连网的机器上，下载2.8.2安装包：
+wget -c https://archive.apache.org/dist/kafka/2.8.2/kafka_2.12-2.8.2.tgz
+# 解压后只需要`libs`目录中的数据，将libs包放到：{安装路径}/kafka/
+```
+
+在**安装节点**执行：
+
+```bash
+# 第一步：停止kafka
+sh bin/stop_kafka.sh
+# 等待3分钟，让kafka的停止数据刷新到了zk后，才能执行下一步
+```
+
+在**kafka三台工作节点**上执行：
+
+```bash
+cd {安装路径}/kafka/
+# 将镜像中的libs目录外挂为新版本libs，请替代换变量`{安装路径}`后执行
+sed -i 's@bitnami/kafka:2.8@-v {安装路径}/kafka/libs:/opt/bitnami/kafka/libs bitnami/kafka:2.8@g' run.sh
+#检查一下脚本中是否新增了挂载：-v {安装路径}/kafka/libs:/opt/bitnami/kafka/libs
+cat run.sh
+# 检查没问题后，手动执行启动（不能用安装节点的start_kafka.sh）
+sh run.sh
+```
+
+> 升级完成后，重启kafka可直接用安装节点的`start_kafka.sh`
+
+软升级完成，登录 efak验证kafka可用性
+
+
+
 ## 6.efak监控与报警
 
 efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
@@ -351,7 +391,6 @@ efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
 2.1.首先配置kafka报警通道
 
 ![image-20221110142716435](images/efak-alarm-channel.png)
-
 
 2.2.配置具体的group lag报警
 
