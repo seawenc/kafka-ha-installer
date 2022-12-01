@@ -379,6 +379,23 @@ sh run.sh
 
 
 
+**回滚方法：**
+
+在**kafka三台工作节点**上执行：
+
+```
+cd {安装路径}/kafka/
+sed -i 's@-v {安装路径}/kafka/libs:/opt/bitnami/kafka/libs@@g' run.sh
+#检查一下脚本中是否删除了挂载：-v {安装路径}/kafka/libs:/opt/bitnami/kafka/libs
+cat run.sh
+# 检查没问题后，手动执行启动（不能用安装节点的start_kafka.sh）
+sh run.sh
+```
+
+> 回滚完成后，重启kafka可直接用安装节点的`start_kafka.sh`
+
+
+
 ### 5.3、efak升级
 
 当前版本为3.0.3, 若有新版本，请替换版本号
