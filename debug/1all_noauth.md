@@ -41,7 +41,7 @@ docker run --name kafka -ti -d \
 -e KAFKA_CLIENT_PASSWORDS=aaBB@1122 \
 -e KAFKA_INTER_BROKER_USER=admin \
 -e KAFKA_INTER_BROKER_PASSWORD=aaBB@1122 \
- bitnami/kafka:2.8.1
+ seawenc/bitnami-kafka:2.8.2
 docker logs -f kafka
 
 
@@ -63,7 +63,7 @@ docker run --name kafka -ti -d \
 -e KAFKA_CLIENT_PASSWORDS=aaBB@1122 \
 -e KAFKA_INTER_BROKER_USER=admin \
 -e KAFKA_INTER_BROKER_PASSWORD=aaBB@1122 \
- bitnami/kafka:2.8.1
+ seawenc/bitnami-kafka:2.8.2
 docker logs -f kafka
 
 
@@ -85,6 +85,6 @@ docker run --name kafka -ti -d \
 -e KAFKA_CLIENT_PASSWORDS=aaBB@1122 \
 -e KAFKA_INTER_BROKER_USER=admin \
 -e KAFKA_INTER_BROKER_PASSWORD=aaBB@1122 \
- bitnami/kafka:2.8.1
+ seawenc/bitnami-kafka:2.8.2
 docker logs -f kafka
 ```

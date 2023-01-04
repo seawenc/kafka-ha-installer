@@ -1,0 +1,12 @@
+FROM bitnami/kafka:2.8.1
+
+# 2.8.1版本有bug，官方一直不升級，只有自己升級了
+RUN cd /opt/bitnami/kafka && \
+    curl -O http://192.168.56.1:8000/kafka_2.12-2.8.2.tgz && \
+    tar -xzf kafka_2.12-2.8.2.tgz && \
+    rm -rf /opt/bitnami/kafka/libs/* && \
+    mv kafka_2.12-2.8.2/libs/* /opt/bitnami/kafka/libs/ && \
+    rm -rf kafka_2.12*
+
+# docker build -t seawenc/bitnami-kafka:2.8.2 -f Dockerfile.kafka .
+# docker push seawenc/bitnami-kafka:2.8.2
