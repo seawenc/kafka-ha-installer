@@ -51,8 +51,10 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 ## 3.安装准备
 
 ### 3.0.安装脚本获取
+先安装docker,参考： <https://docs.docker.com/engine/install/centos/>
 
 ```shell script
+
 # 在任意一台服务器上下载安装脚本，若不能连网，则请直接手动下载源码
 git clone https://github.com/sewenc/kafka-ha-installer.git
 #或者：
@@ -66,8 +68,8 @@ docker pull bitnami/zookeeper:3.6.3
 # 此鏡像制作參考：dockerfile/Dockerfile.kafka
 docker pull seawenc/bitnami-kafka:2.8.2
 # 此鏡像制作參考：
-docker pull seawenc/efak:3.0.4
-docker save bitnami/zookeeper:3.6.3  seawenc/bitnami-kafka:2.8.2 seawenc/efak:3.0.4 -o ha-kafka.images
+docker pull seawenc/efak:3.0.6
+docker save bitnami/zookeeper:3.6.3  seawenc/bitnami-kafka:2.8.2 seawenc/efak:3.0.6 -o ha-kafka.images
 # 获得到镜像压缩包hakafka.tar后，上传到，需安装kafka的机器上，并在所有节点上执行：
 docker load -i  ha-kafka.images
 ```
@@ -404,9 +406,9 @@ sh run.sh
 
 ```bash
 # 下载镜像
-docker pull seawenc/efak:3.0.4
+docker pull seawenc/efak:3.0.6
 # 导出镜像
-docker save seawenc/efak:3.0.4 > efak3.0.4.image
+docker save seawenc/efak:3.0.6 > efak3.0.6.image
 # 将文件上传到服务器
 ```
 

@@ -18,7 +18,7 @@ do
   ssh $ip  "rm -rf $BASE_PATH/kafka/*"
   ssh $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
   ssh $ip  "chmod 777 $DATA_DIR/kafka"
-  scp ../conf/jaas.conf $ip:$BASE_PATH/kafka/
+  scp $installpath/conf/jaas.conf $ip:$BASE_PATH/kafka/
   ssh $ip "sed -i 's/@ZKKPWD@/${zkkpwd}/g' $BASE_PATH/kafka/jaas.conf"
   ssh $ip "sed -i 's/@KAFKA_USER@/${zkkuser}/g' $BASE_PATH/kafka/jaas.conf"
   ## 启动kafka 

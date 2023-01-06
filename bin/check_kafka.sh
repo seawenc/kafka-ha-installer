@@ -15,7 +15,7 @@ do
 done
 echo "请等待所有节点成功启动" >> ~/tmp.log
 echo "若服务已启动很久再检查状态结果将不准确，因为启动成功的日志标志已被覆盖"
-echo "若启动失败，则请登录对应服务器：通过: docker log -f kafka" >> ~/tmp.log
+echo "若启动失败，则请登录对应服务器：通过: docker logs -f kafka" >> ~/tmp.log
 echo "若启动失败，则请 ctrl+c后,退出安装,手动查找失败原因" >> ~/tmp.log
 echo "若启动成功，则请 ctrl+c后,退出本界面，继续安装" >> ~/tmp.log
 
