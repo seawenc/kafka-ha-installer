@@ -16,7 +16,7 @@ function install_efak(){
     ssh $efak_ip "sed -i 's#@KAFKA_PWD@#${zkkpwd}#g' $BASE_PATH/efak/system-config.properties"
     ssh $efak_ip "echo 'docker stop efak' > $BASE_PATH/efak/run.sh"
     ssh $efak_ip "echo 'docker rm -f efak' >> $BASE_PATH/efak/run.sh"
-    ssh $efak_ip "echo 'docker run --name efak --restart=always -p 8048:8048 -d \
+    ssh $efak_ip "echo 'docker run --name efak --restart=always -p 8048:8048 -d -m 3G \
                           -v ${DATA_DIR}/efak:/opt/app/efak/db \
                           -v $BASE_PATH/efak/system-config.properties:/opt/app/efak/conf/system-config.properties \
                 seawenc/efak:3.0.6' >> $BASE_PATH/efak/run.sh"
