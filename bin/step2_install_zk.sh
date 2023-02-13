@@ -53,5 +53,5 @@ sleep 10
 watch -n 10 -d $installpath/bin/check_zk.sh
 
 print_log info "若需要调试zookeeper，执行以下指令安装ui（此ui存在弱密码，调试完成请删除）"
-ZK_SVC=`cat ../conf/config.sh| grep 'servers\["' | awk -F '"' '{print $4":2181"}'| tr "\n" "," | sed 's/.$//'`
+ZK_SVC=`cat $installpath/conf/config.sh| grep 'servers\["' | awk -F '"' '{print $4":2181"}'| tr "\n" "," | sed 's/.$//'`
 echo "docker run -d --name zkui -p 9090:9090 -e ZK_SERVER=${ZK_SVC} juris/zkui:latest"
