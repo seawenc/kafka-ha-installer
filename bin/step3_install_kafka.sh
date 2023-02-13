@@ -9,7 +9,7 @@ print_log info "暂停10秒，等待kafka stop状态刷新到zookeeper中"
 sleep 10
 print_log info "#################第三步:2.安装与启动kafka ###############################"
 function install_kafka(){
-ZOO_SERVERS=`cat ../conf/config.sh| grep 'servers\["' | awk -F '"' '{print $2":2181"}'| tr "\n" "," | sed 's/.$//'`
+ZOO_SERVERS=`cat $installpath/conf/config.sh| grep 'servers\["' | awk -F '"' '{print $2":2181"}'| tr "\n" "," | sed 's/.$//'`
 FOR_SEQ=1
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
@@ -53,7 +53,7 @@ do
             -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \
             -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \
            -v ${DATA_DIR}/kafka:/bitnami/kafka \
-            seawenc/bitnami-kafka:2.8.2' >> $BASE_PATH/kafka/run.sh"
+            seawenc/bitnami-kafka:3.4.0' >> $BASE_PATH/kafka/run.sh"
            # 若采用kafka加密认证，则加上以下参数
   ssh $ip "chmod +x $BASE_PATH/kafka/run.sh"
   ssh $ip "sh $BASE_PATH/kafka/run.sh"

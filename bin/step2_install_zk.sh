@@ -1,4 +1,5 @@
 installpath=$(cd `dirname $0`;cd ../;pwd)
+cd $installpath
 source $installpath/conf/config.sh
 source $installpath/bin/common.sh
 
@@ -9,7 +10,7 @@ sleep 3
 print_log info "#################第二步:2.安装zookeeper ###############################"
 function install_zk(){
 # 第一种格式适用于bitnami/zookeeper:3.8,第二种格式适用于zookeeper:3.6.3
-ZOO_SERVERS=`cat ../conf/config.sh| grep 'servers\["' | awk -F '"' '{print $2":2888:3888"}'| tr "\n" "," | sed 's/.$//'`
+ZOO_SERVERS=`cat $installpath/conf/config.sh| grep 'servers\["' | awk -F '"' '{print $2":2888:3888"}'| tr "\n" "," | sed 's/.$//'`
 #ZOO_SERVERS=`cat ../conf/config.sh| grep 'servers\["' | awk -F '"' '{print "server."NR"="$2":2888:3888;2181"}'| tr "\n" " " | sed 's/.$//'`
 
 #ZOO_SERVERS="zk1:2888:3888,zk2:2888:3888,zk3:2888:3888"

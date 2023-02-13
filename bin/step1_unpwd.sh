@@ -9,7 +9,7 @@ print_log info "####1.开始生成免密文件"
 rm -rf ~/.ssh && mkdir ~/.ssh && cd ~/.ssh
 ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa > /dev/null
 cat id_rsa.pub > authorized_keys
-cat > config << EOF 
+cat > ~/.ssh/config << EOF
 Host *
   StrictHostKeyChecking no
 EOF

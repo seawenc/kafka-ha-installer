@@ -16,9 +16,16 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 ## 2.版本更新记录
 
 
-**v2.3.0(计划中)**
+**v2.4.0(计划中)**
 
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
+
+**v2.3.0**.2023-02-13
+
+> * 1.将kafka升级到3.4.0
+> 
+> * 2.解决安装脚本中使用了相对路径bug
+
 
 **v2.2.0**.2022-11-30
 
@@ -66,10 +73,10 @@ git clone https://gitee.com/seawenc/kafka-ha-installer.git
 # 找一台可连网已安装docker的服务器,执行以下指令：
 docker pull bitnami/zookeeper:3.6.3
 # 此鏡像制作參考：dockerfile/Dockerfile.kafka
-docker pull seawenc/bitnami-kafka:2.8.2
+docker pull seawenc/bitnami-kafka:3.4.0
 # 此鏡像制作參考：
 docker pull seawenc/efak:3.0.6
-docker save bitnami/zookeeper:3.6.3  seawenc/bitnami-kafka:2.8.2 seawenc/efak:3.0.6 -o ha-kafka.images
+docker save bitnami/zookeeper:3.6.3  seawenc/bitnami-kafka:3.4.0 seawenc/efak:3.0.6 -o ha-kafka.images
 # 获得到镜像压缩包hakafka.tar后，上传到，需安装kafka的机器上，并在所有节点上执行：
 docker load -i  ha-kafka.images
 ```
@@ -298,23 +305,19 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --zookeeper 192.168.56.1
 
 ### 5.2、kafka离线升级
 
-kafka2.8.1版本有漏洞，需要升级到2.8.2版本，升级方式:
-
-
+提供两种升级方式，以下以2.8.1升级到2.8.2为例：
 
 #### 5.2.1、硬升级
 
 但是现在bitnami/kafka还没有2.8.2版本，因此下面的升级脚本不可行，需要等待官方升级才可用此方式
 
-
-
 准备镜像（在**可连网的机器上**完成）：
 
 ```bash
 # 下载镜像
-docker pull bitnami/kafka:2.8.2
+docker pull bitnami/kafka:2.8.1
 # 导出镜像
-docker save bitnami/kafka:2.8.2 > kafka2.8.2.image
+docker save bitnami/kafka:2.8.1 > kafka2.8.1.image
 # 将文件上传到服务器
 ```
 
@@ -331,7 +334,7 @@ sed -i 's/2.8.1/2.8.2/g' step3_install_kafka.sh
 
 ```bash
 # 导入镜像
-docker load < kafka2.8.2.image
+docker load < kafka2.8.1.image
 # 在kafka的三台服务器上执行，修改版本号：,修改完成后，可检查run.sh中版本号是否已修改
 sed -i 's/2.8.1/2.8.2/g' {安装路径}/kafka/run.sh
 ```
@@ -402,7 +405,7 @@ sh run.sh
 
 ### 5.3、efak升级
 
-当前版本为3.0.3, 若有新版本，请替换版本号
+当前版本为3.0.6, 若有新版本，请替换版本号
 
 ```bash
 # 下载镜像

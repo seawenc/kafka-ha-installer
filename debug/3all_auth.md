@@ -38,7 +38,7 @@ docker run --name kafka -ti -d \
 -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \
 -e KAFKA_ZOOKEEPER_USER=admin \
 -e KAFKA_ZOOKEEPER_PASSWORD=aaBB@1122 \
- seawenc/bitnami-kafka:2.8.2
+ seawenc/bitnami-kafka:3.4.0
 docker logs -f kafka
 
 
@@ -65,7 +65,7 @@ docker run --name kafka -ti -d \
 -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \
 -e KAFKA_ZOOKEEPER_USER=admin \
 -e KAFKA_ZOOKEEPER_PASSWORD=aaBB@1122 \
- seawenc/bitnami-kafka:2.8.2
+ seawenc/bitnami-kafka:3.4.0
 docker logs -f kafka
 
 docker rm -f kafka
@@ -91,7 +91,7 @@ docker run --name kafka -ti -d \
 -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \
 -e KAFKA_ZOOKEEPER_USER=admin \
 -e KAFKA_ZOOKEEPER_PASSWORD=aaBB@1122 \
- seawenc/bitnami-kafka:2.8.2
+ seawenc/bitnami-kafka:3.4.0
 docker logs -f kafka
 ```
 
