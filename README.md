@@ -16,9 +16,13 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 ## 2.版本更新记录
 
 
-**v2.4.0(计划中)**
+**v2.5.0(计划中)**
 
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
+>
+**v2.4.0**.2023-02-13
+
+> * 1.加入docker一键安装
 
 **v2.3.0**.2023-02-13
 
@@ -90,7 +94,8 @@ gunzip -c efak.gz | docker load
 ```
 ├── bin                         : 所有脚本目录
 │   ├── common.sh               : 通用工具脚本，无需显式调用
-│   ├── step1_unpwd.sh          : 免密码配置脚本，安装ha集群前需执行此脚本进行初始化
+│   ├── step0_unpwd.sh          : 免密码配置脚本，安装ha集群前需执行此脚本进行初始化
+│   ├── step1_install_docker.sh : 一键安装docker
 │   ├── step2_install_zk.sh     :一键安装zookeeper
 │   ├── step3_install_kafka.sh  :一键安装kafka
 │   ├── step4_install_efak.sh   :一键安装efak(监控工具)
@@ -143,8 +148,10 @@ efak_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -1`
 
 ### 3.4.开始安装
 ```shell script
-# 步骤1：配置服务器之前的免密
-sh bin/step1_unpwd.sh
+# 步骤0：配置服务器之前的免密
+sh bin/step0_unpwd.sh
+# 步骤1：安装docker
+sh bin/step1_install_docker.sh
 # 步骤2：安装zookeeper
 sh bin/step2_install_zk.sh
 # 步骤3：安装kafka

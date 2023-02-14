@@ -1,4 +1,6 @@
 ###############################0.参数配置##########################
+# docker版本,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/
+DOCKER_VERSION=20.10.19
 # 基本路径，zookeeper与kafka都安装在此目录,请确保此目录有权限
 BASE_PATH=/opt/app/zkafka
 # 数据存放目录
