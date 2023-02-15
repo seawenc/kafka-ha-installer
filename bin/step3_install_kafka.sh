@@ -9,7 +9,7 @@ print_log info "暂停10秒，等待kafka stop状态刷新到zookeeper中"
 sleep 10
 print_log info "#################第三步:2.安装与启动kafka ###############################"
 function install_kafka(){
-ZOO_SERVERS=`cat $installpath/conf/config.sh| grep 'servers\["' | awk -F '"' '{print $2":2181"}'| tr "\n" "," | sed 's/.$//'`
+ZOO_SERVERS=`cat $installpath/conf/config.sh| grep 'servers\["' | sort | awk -F '"' '{print $2":2181"}'| tr "\n" "," | sed 's/.$//'`
 FOR_SEQ=1
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
