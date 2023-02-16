@@ -2,6 +2,14 @@
 ## 1.说明
 本方案，需要至少三台服务器，每台服务器需要安装kafka与zookeeper，监控工具efak将安装在第一台
 
+资源要求：4C/8g,`文件打开数`>=10240,文件打开数修改方式如下:  
+```shell script
+sudo echo "* soft nofile 10240" >> /etc/security/limits.conf
+sudo echo "* hard nofile 10240" >> /etc/security/limits.conf
+# 退出，重新登录后查看修改结果：
+ulimit -n
+```
+
 相关组件说明:  
 **若想修改一些默认参数，请看官方说明**
 * 1.zookeeper
@@ -12,6 +20,8 @@ docker地址：<https://hub.docker.com/r/bitnami/kafka>
 
 * 3.efak
 docker地址：<https://hub.docker.com/r/seawenc/efak>
+
+
 
 ## 2.版本更新记录
 
