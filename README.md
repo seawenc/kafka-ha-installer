@@ -180,6 +180,12 @@ sh bin/step4_install_efak.sh
 > 1. `kafka`,`zookeeper`,`efak`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
 > 2. 若安装过程中状态检查未通过，则请按提示查看日志，解决后继续
 
+**若执行脚本时报换行符的错(关键字包含：\r)，是因为你用window操作系统打开过，执行以下脚本修复:**
+```shell script
+sed -i 's/\r$//' bin/*.sh
+sed -i 's/\r$//' conf/*.sh
+```
+
 ### 3.5.验证安装结果
 
 获得： step3_install_kafka.sh 此脚本的`运行过程中打印出的`**最后三句脚本**，在已安装kafka的节点上执行  
