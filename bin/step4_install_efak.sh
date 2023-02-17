@@ -6,6 +6,10 @@ sh $installpath/bin/stop_efak.sh
 sleep 5
 print_log info "#################第四步:1.安装与启动监控工具-efak ###############################"
 function install_efak(){
+    echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
+    [[ -f "$installpath/packages/efak.gz" ]] && scp $installpath/packages/efak.gz $efak_ip:$BASE_PATH/efak/
+    [[ -f "$installpath/packages/efak.gz" ]] && ssh $efak_ip "gunzip -c $BASE_PATH/efak/efak.gz | docker load"
+
     zk_ips=`echo ${!servers[*]} |sed 's/ /:2181,/g' | awk '{print $1":2181"}'`  
     print_log warn "2.1.在$efak_ip 节点安装efak"
     ssh $efak_ip "rm -rf $BASE_PATH/efak*"
