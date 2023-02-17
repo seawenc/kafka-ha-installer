@@ -13,12 +13,17 @@ function install_zk(){
 ZOO_SERVERS=`cat $installpath/conf/config.sh| grep 'servers\["' | awk -F '"' '{print $2":2888:3888"}'| tr "\n" "," | sed 's/.$//'`
 #ZOO_SERVERS=`cat ../conf/config.sh| grep 'servers\["' | awk -F '"' '{print "server."NR"="$2":2888:3888;2181"}'| tr "\n" " " | sed 's/.$//'`
 
+
 #ZOO_SERVERS="zk1:2888:3888,zk2:2888:3888,zk3:2888:3888"
 echo "ZOO_SERVERS=${ZOO_SERVERS};"
 FOR_SEQ=1
 # 不能直接用数组进行循环，因为zookeeper要求myid，与启动顺序有序，而直接数组无序
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
+  echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
+  [[ -f "$installpath/packages/zk.gz" ]] && scp $installpath/packages/zk.gz $ip:$BASE_PATH/zookeeper/
+  [[ -f "$installpath/packages/zk.gz" ]] && ssh $ip "gunzip -c $BASE_PATH/zookeeper/zk.gz | docker load"
+
   print_log warn "2.1.在$ip 节点安装zookeeper"
   ssh $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
   ## 写入集群节点信息
