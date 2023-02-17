@@ -1,5 +1,5 @@
 installpath=$(cd `dirname $0`;cd ../;pwd)
-source $installpath/config/config.sh
+source $installpath/conf/config.sh
 source $installpath/bin/common.sh
 
 
@@ -9,7 +9,7 @@ sh $installpath/bin/check_docker.sh
 
 print_log info "#################安装与启动docker#################"
 function install_docker(){
-sed -i "s#@DOCKER_ROOT@#$DATA_DIR/docker#g" $installpath/config/docker/daemon.json
+sed -i "s#@DOCKER_ROOT@#$DATA_DIR/docker#g" $installpath/conf/docker/daemon.json
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "$ip 节点安装docker"
@@ -18,9 +18,9 @@ do
   scp -r $installpath/packages/docker-${DOCKER_VERSION}.tgz $ip:$BASE_PATH/
   ssh $ip "tar -zxf $BASE_PATH/docker-${DOCKER_VERSION}.tgz -C $BASE_PATH"
   ssh $ip "cp $BASE_PATH/docker/* /usr/bin/"
-  scp -r $installpath/config/docker/docker.service $ip:/usr/lib/systemd/system/
+  scp -r $installpath/conf/docker/docker.service $ip:/usr/lib/systemd/system/
   ssh $ip "mkdir -p /etc/docker $DATA_DIR/docker"
-  scp -r $installpath/config/docker/daemon.json $ip:/etc/docker/
+  scp -r $installpath/conf/docker/daemon.json $ip:/etc/docker/
   ssh $ip "rm -rf $BASE_PATH/docker-${DOCKER_VERSION}.tgz"
   ssh $ip "systemctl daemon-reload"
   ssh $ip "systemctl start docker"
