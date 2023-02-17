@@ -75,6 +75,8 @@ git clone https://gitee.com/seawenc/kafka-ha-installer.git
 ### 3.1.离线安装准备
 **若可安装的服务的主机可连网，则请跳过此部署**
 ```shell script
+# 如果目标机器没有docker，则需要先下载docker，下载地址：https://download.docker.com/linux/static/stable/x86_64/
+
 # 找一台可连网已安装docker的服务器,执行以下指令：
 docker pull bitnami/zookeeper:3.6.3
 # 此鏡像制作參考：dockerfile/Dockerfile.kafka
@@ -84,12 +86,9 @@ docker pull seawenc/efak:3.0.6
 docker save bitnami/zookeeper:3.6.3 | gzip > zk.gz
 docker save seawenc/bitnami-kafka:3.4.0 | gzip > kafka.gz
 docker save seawenc/efak:3.0.6 | gzip > efak.gz
-
-# 获得到镜像压缩包后，上传到，需安装kafka的机器上，并在所有节点上执行：
-gunzip -c zk.gz | docker load
-gunzip -c kafka.gz | docker load
-gunzip -c efak.gz | docker load
 ```
+> 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（zk.gz、kafka.gz、efak.gz、docker-${DOCKER_VERSION}.tgz） 
+
 
 ### 3.2.目录文件说明
 ```
@@ -109,7 +108,11 @@ gunzip -c efak.gz | docker load
 │   ├── check_kafka.sh          :一键检查所有节点kafka状态
 │   ├── check_zk.sh             :一键检查所有节点zookeeper状态
 │   └── clear_data.sh           : 清空所有节点数据（调用请慎重）
+├── packages                    : 离线安装包目录，其中文件需参考上一章节自行准备
 ├── conf                        : 所有的配置文件
+│   ├── docker                  : docker离线安装所需的文件
+│   │    ├── daemon.json        : docker核心配置文件
+│   │    └── docker.service     : docker服务文件
 │   ├── config.sh               : 核心配置文件，具体配置项，请看下面介绍
 │   ├── efak.properties         : 监控工具efak的配置文件，可不用修改
 │   └── jaas.conf               : jaas认证文件，若不用新加kafka用户，则可不用修改
@@ -121,6 +124,8 @@ gunzip -c efak.gz | docker load
 * 1.`conf/config.sh`:
 ```shell script
 ###############################0.参数配置##########################
+# docker版本，(若环境未安装docker,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/) 
+DOCKER_VERSION=20.10.19
 # 基本路径，zookeeper与kafka都安装在此目录,请确保此目录有权限
 BASE_PATH=/opt/app/hakafka
 # 数据存放目录
@@ -146,6 +151,7 @@ efak_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -1`
 ```
 * 2.`conf/efak.properties`: 监控工具efak的配置文件，**可不用修改**
 * 3.`conf/jaas.conf`: jaas认证文件，若不用新加kafka用户，**则可不用修改**
+* 4.`conf/docker`: docker相关的配置，若无特殊需求，**则可不用修改**
 
 ### 3.4.开始安装
 ```shell script
