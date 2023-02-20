@@ -17,20 +17,20 @@ do
 
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   [[ -f "$installpath/packages/kafka.gz" ]] && scp $installpath/packages/kafka.gz $ip:$BASE_PATH/kafka/
-  [[ -f "$installpath/packages/kafka.gz" ]] && ssh $ip "gunzip -c $BASE_PATH/kafka/kafka.gz | docker load"
+  [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/kafka/kafka.gz | docker load"
 
   # 先停止kafka 解决重复启动问题
-  ssh $ip  "rm -rf $BASE_PATH/kafka/*"
-  ssh $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
-  ssh $ip  "chmod 777 $DATA_DIR/kafka"
+  ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/kafka/*"
+  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
+  ssh -p $ssh_port $ip  "chmod 777 $DATA_DIR/kafka"
   scp $installpath/conf/jaas.conf $ip:$BASE_PATH/kafka/
-  ssh $ip "sed -i 's/@ZKKPWD@/${zkkpwd}/g' $BASE_PATH/kafka/jaas.conf"
-  ssh $ip "sed -i 's/@KAFKA_USER@/${zkkuser}/g' $BASE_PATH/kafka/jaas.conf"
+  ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${zkkpwd}/g' $BASE_PATH/kafka/jaas.conf"
+  ssh -p $ssh_port $ip "sed -i 's/@KAFKA_USER@/${zkkuser}/g' $BASE_PATH/kafka/jaas.conf"
   ## 启动kafka 
   print_log info "开始启动$ip 的kafka"
   
-  ssh $ip "echo 'docker rm kafka' > $BASE_PATH/kafka/run.sh"
-  ssh $ip "echo 'docker run --name kafka -d --restart=unless-stopped \
+  ssh -p $ssh_port $ip "echo 'docker rm kafka' > $BASE_PATH/kafka/run.sh"
+  ssh -p $ssh_port $ip "echo 'docker run --name kafka -d --restart=unless-stopped \
            -e ALLOW_PLAINTEXT_LISTENER=yes \
            -e KAFKA_BROKER_ID=${FOR_SEQ} \
            -e KAFKA_MESSAGE_MAX_BYTES=100001200 -p 9999:9999 -p ${kafka_port}:${kafka_port} -p ${kafka_port_outside}:${kafka_port_outside} \
@@ -60,15 +60,15 @@ do
            -v ${DATA_DIR}/kafka:/bitnami/kafka \
             seawenc/bitnami-kafka:3.4.0' >> $BASE_PATH/kafka/run.sh"
            # 若采用kafka加密认证，则加上以下参数
-  ssh $ip "chmod +x $BASE_PATH/kafka/run.sh"
-  ssh $ip "sh $BASE_PATH/kafka/run.sh"
+  ssh -p $ssh_port $ip "chmod +x $BASE_PATH/kafka/run.sh"
+  ssh -p $ssh_port $ip "sh $BASE_PATH/kafka/run.sh"
   sleep 3
-  ssh $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/producer.properties\""
-  ssh $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/consumer.properties\""
-  ssh $ip "cat $BASE_PATH/kafka/run.sh | sed 's/            / \\\\\\n/g'"
+  ssh -p $ssh_port $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/producer.properties\""
+  ssh -p $ssh_port $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/consumer.properties\""
+  ssh -p $ssh_port $ip "cat $BASE_PATH/kafka/run.sh | sed 's/            / \\\\\\n/g'"
   let FOR_SEQ+=1 
   print_log info "查看日志："
-  print_log info "ssh $ip 'docker logs -f kafka'"
+  print_log info "ssh -p $ssh_port $ip 'docker logs -f kafka'"
 done
 }
 

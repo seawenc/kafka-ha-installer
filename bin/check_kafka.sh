@@ -6,8 +6,8 @@ function check_kafka(){
 echo "" > ~/tmp.log
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
-  SUCCESS_IND=`ssh $ip "docker logs kafka 2> /dev/null | grep 'started (kafka.server.KafkaServer)' | wc -l" `
-  LIVE_IND=`ssh $ip "docker ps | grep kafka | wc -l"`
+  SUCCESS_IND=`ssh -p $ssh_port $ip "docker logs kafka 2> /dev/null | grep 'started (kafka.server.KafkaServer)' | wc -l" `
+  LIVE_IND=`ssh -p $ssh_port $ip "docker ps | grep kafka | wc -l"`
   zk_status="启动中！"
   [[ $SUCCESS_IND -eq 1 ]] && zk_status='启动成功'
   [[ $LIVE_IND -eq 0 ]] && zk_status='未启动'

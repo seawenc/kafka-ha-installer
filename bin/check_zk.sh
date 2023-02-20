@@ -6,8 +6,8 @@ function check_zookeeper(){
 echo "" > ~/tmp.log
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
-  ROLE_INFO=`ssh $ip "docker exec zookeeper zkServer.sh status 2>/dev/null | grep Mode" `
-  LIVE_IND=`ssh $ip "docker ps | grep zookeeper | wc -l"`
+  ROLE_INFO=`ssh -p $ssh_port $ip "docker exec zookeeper zkServer.sh status 2>/dev/null | grep Mode" `
+  LIVE_IND=`ssh -p $ssh_port $ip "docker ps | grep zookeeper | wc -l"`
   zk_status="启动失败！"
   [[ "{$ROLE_INFO}" =~ "Mode"  ]] && zk_status='启动成功'
   [[ $LIVE_IND -eq 0 ]] && zk_status='未启动'

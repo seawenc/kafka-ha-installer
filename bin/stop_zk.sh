@@ -6,7 +6,7 @@ function stop_zookeeper(){
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "开始停止$ip 的zookeeper..."
-  ssh $ip "docker stop zookeeper"
+  ssh -p $ssh_port $ip "docker stop zookeeper"
 done
 }
 stop_zookeeper

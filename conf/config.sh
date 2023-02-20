@@ -10,6 +10,7 @@ declare -A servers=()
 servers["192.168.56.11"]="192.168.55.11"
 servers["192.168.56.12"]="192.168.55.12"
 servers["192.168.56.13"]="192.168.55.13"
+ssh_port=22
 kafka_port=9092
 kafka_port_outside=9093
 # kafka消息生存时间（单位小时）

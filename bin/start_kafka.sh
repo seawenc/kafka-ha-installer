@@ -6,7 +6,7 @@ function start_kafka(){
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "开始启动$ip 的kafka..."
-  ssh $ip "docker start kafka" 
+  ssh -p $ssh_port $ip "docker start kafka" 
 done
 }
 start_kafka

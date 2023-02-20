@@ -21,15 +21,15 @@ for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   [[ -f "$installpath/packages/zk.gz" ]] && scp $installpath/packages/zk.gz $ip:$BASE_PATH/zookeeper/
-  [[ -f "$installpath/packages/zk.gz" ]] && ssh $ip "gunzip -c $BASE_PATH/zookeeper/zk.gz | docker load"
+  [[ -f "$installpath/packages/zk.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/zookeeper/zk.gz | docker load"
 
   print_log warn "2.1.在$ip 节点安装zookeeper"
-  ssh $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
+  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
   ## 写入集群节点信息
   print_log info "开始启动$ip 的zookeeper"
-  ssh $ip  "rm -rf $BASE_PATH/zookeeper/*"
-  ssh $ip "echo 'docker rm zookeeper' > $BASE_PATH/zookeeper/run.sh"
-  ssh $ip "echo 'docker run --name zookeeper -ti -d \
+  ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/zookeeper/*"
+  ssh -p $ssh_port $ip "echo 'docker rm zookeeper' > $BASE_PATH/zookeeper/run.sh"
+  ssh -p $ssh_port $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
            -p 2181:2181 -p 2888:2888 -p 3888:3888 \
            -v $DATA_DIR/zookeeper:/data \
@@ -45,9 +45,9 @@ do
            -e JVMFLAGS=\"-Dzookeeper.electionPortBindRetry=50\" \
            -e ZOO_SERVERS=\"${ZOO_SERVERS}\" \
             bitnami/zookeeper:3.6.3' >> $BASE_PATH/zookeeper/run.sh"
-  ssh $ip "chmod +x $BASE_PATH/zookeeper/run.sh"
-  ssh $ip "sh $BASE_PATH/zookeeper/run.sh"
-  ssh $ip "cat $BASE_PATH/zookeeper/run.sh  | sed 's/            / \\\\\\n/g'"
+  ssh -p $ssh_port $ip "chmod +x $BASE_PATH/zookeeper/run.sh"
+  ssh -p $ssh_port $ip "sh $BASE_PATH/zookeeper/run.sh"
+  ssh -p $ssh_port $ip "cat $BASE_PATH/zookeeper/run.sh  | sed 's/            / \\\\\\n/g'"
   let FOR_SEQ+=1  
 done
 }

@@ -19,5 +19,5 @@ for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "2.清空 $ip 节点所有数据"
   # 先停止kafka 解决重复启动问题
-  ssh $ip  "rm -rf $DATA_DIR/*"
+  ssh -p $ssh_port $ip  "rm -rf $DATA_DIR/*"
 done

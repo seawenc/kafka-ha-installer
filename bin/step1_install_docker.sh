@@ -13,18 +13,18 @@ sed -i "s#@DOCKER_ROOT@#$DATA_DIR/docker#g" $installpath/conf/docker/daemon.json
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "$ip 节点安装docker"
-  ssh $ip "systemctl stop docker"
-  ssh $ip "rm -rf $DATA_DIR/docker /etc/docker /etc/systemd/system/docker.service /usr/bin/containerd/* /usr/bin/docker*"
-  scp -r $installpath/packages/docker-${DOCKER_VERSION}.tgz $ip:$BASE_PATH/
-  ssh $ip "tar -zxf $BASE_PATH/docker-${DOCKER_VERSION}.tgz -C $BASE_PATH"
-  ssh $ip "cp $BASE_PATH/docker/* /usr/bin/"
-  scp -r $installpath/conf/docker/docker.service $ip:/usr/lib/systemd/system/
-  ssh $ip "mkdir -p /etc/docker $DATA_DIR/docker"
-  scp -r $installpath/conf/docker/daemon.json $ip:/etc/docker/
-  ssh $ip "rm -rf $BASE_PATH/docker-${DOCKER_VERSION}.tgz"
-  ssh $ip "systemctl daemon-reload"
-  ssh $ip "systemctl start docker"
-  ssh $ip "systemctl enable docker"
+  ssh -p $ssh_port $ip "systemctl stop docker"
+  ssh -p $ssh_port $ip "rm -rf $DATA_DIR/docker /etc/docker /etc/systemd/system/docker.service /usr/bin/containerd/* /usr/bin/docker*"
+  scp -P $ssh_port -r $installpath/packages/docker-${DOCKER_VERSION}.tgz $ip:$BASE_PATH/
+  ssh -p $ssh_port $ip "tar -zxf $BASE_PATH/docker-${DOCKER_VERSION}.tgz -C $BASE_PATH"
+  ssh -p $ssh_port $ip "cp $BASE_PATH/docker/* /usr/bin/"
+  scp -P $ssh_port -r $installpath/conf/docker/docker.service $ip:/usr/lib/systemd/system/
+  ssh -p $ssh_port $ip "mkdir -p /etc/docker $DATA_DIR/docker"
+  scp -P $ssh_port -r $installpath/conf/docker/daemon.json $ip:/etc/docker/
+  ssh -p $ssh_port $ip "rm -rf $BASE_PATH/docker-${DOCKER_VERSION}.tgz"
+  ssh -p $ssh_port $ip "systemctl daemon-reload"
+  ssh -p $ssh_port $ip "systemctl start docker"
+  ssh -p $ssh_port $ip "systemctl enable docker"
 done
 }
 

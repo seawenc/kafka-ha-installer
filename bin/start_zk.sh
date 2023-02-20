@@ -7,7 +7,7 @@ function start_zk(){
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log info "开始启动$ip 的zookeeper"
-  ssh $ip "docker start zookeeper"
+  ssh -p $ssh_port $ip "docker start zookeeper"
 done
 }
 
