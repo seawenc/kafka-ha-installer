@@ -21,7 +21,7 @@ function scp_ssh(){
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "2.1.请输入节点:$ip 的密码,进行免密配置:"
-  scp -P $ssh_port -r ~/.ssh -p $ssh_port $ip:~/
+  scp -P $ssh_port -r ~/.ssh $ip:~/
   ssh -p $ssh_port $ip "mkdir -p $BASE_PATH $DATA_DIR"
   ssh -p $ssh_port $ip "rm -rf $BASE_PATH/kafka*"
   ssh -p $ssh_port $ip "rm -rf $BASE_PATH/zookeeper*"

@@ -4,7 +4,7 @@ source $installpath/bin/common.sh
 
 print_log warn "#################第三步:安装kafka ###############################"
 print_log info "#################第三步:1.关停已启动的kafka ###############################"
-sh $installpath/bin/stop_kafka.sh
+bash $installpath/bin/stop_kafka.sh
 print_log info "暂停10秒，等待kafka stop状态刷新到zookeeper中"
 sleep 10
 print_log info "#################第三步:2.安装与启动kafka ###############################"
@@ -18,6 +18,7 @@ do
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   [[ -f "$installpath/packages/kafka.gz" ]] && scp -P $ssh_port $installpath/packages/kafka.gz $ip:$BASE_PATH/kafka/
   [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/kafka/kafka.gz | docker load"
+  [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "rm -rf $BASE_PATH/kafka/kafka.gz"
 
   # 先停止kafka 解决重复启动问题
   ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/kafka/*"
@@ -73,7 +74,7 @@ done
 
 install_kafka
 print_log info "#################第三步:等待kafka启动 ###############################"
-watch -d -n 5 $installpath/bin/check_kafka.sh
+watch -d -n 5 bash $installpath/bin/check_kafka.sh
 
 broker_list=`echo "${!servers[@]}"| sed "s# #:$kafka_port,#g" | sed "s#\\$#:$kafka_port#g"`
 print_log warn "请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性"

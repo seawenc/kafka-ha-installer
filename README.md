@@ -189,6 +189,8 @@ sh bin/step4_install_efak.sh
 sed -i 's/\r$//' bin/*.sh
 sed -i 's/\r$//' conf/*.sh
 ```
+**若容器内部无法访问宿主机ip，则需要开启网络策略，以ufw指令为例：** `sudo ufw allow from 192.168.255.0/24`
+
 
 ### 3.5.验证安装结果
 
@@ -330,16 +332,18 @@ public class KafkaConsumer {
 ### 5.1、常用指令
 
 ``` shell script
+#0 先进入容器
+docker exec -ti kafka bash
 #1.查看topic明细
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --describe --zookeeper 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --describe --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
 
 #2.修改topic：test的消息存储时间为48小时
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --zookeeper 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
 #3.立刻删除过期数据
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --zookeeper 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
 
 #4.修改分区数为3
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --zookeeper 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
 ```
 
 ### 5.2、kafka离线升级

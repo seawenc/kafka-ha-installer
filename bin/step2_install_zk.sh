@@ -4,7 +4,7 @@ source $installpath/bin/common.sh
 
 print_log warn "#################第二步:安装zookeeper ###############################"
 print_log info "#################第二步:1.关停已启动的zookeeper ###############################"
-$installpath/bin/stop_zk.sh
+bash $installpath/bin/stop_zk.sh
 sleep 3
 print_log info "#################第二步:2.安装zookeeper ###############################"
 function install_zk(){
@@ -23,6 +23,8 @@ do
   ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
   [[ -f "$installpath/packages/zk.gz" ]] && scp -P $ssh_port $installpath/packages/zk.gz $ip:$BASE_PATH/zookeeper/
   [[ -f "$installpath/packages/zk.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/zookeeper/zk.gz | docker load"
+  [[ -f "$installpath/packages/zk.gz" ]] && ssh -p $ssh_port $ip "rm -rf $BASE_PATH/zookeeper/zk.gz"
+
   print_log warn "2.1.在$ip 节点安装zookeeper"
   ## 写入集群节点信息
   print_log info "开始启动$ip 的zookeeper"

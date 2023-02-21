@@ -1,4 +1,5 @@
 {
+    "bip": "192.168.255.1/24",
     "data-root": "@DOCKER_ROOT@",
 	"log-driver": "json-file",
     "log-opts": {"max-size": "500m", "max-file": "3"}
