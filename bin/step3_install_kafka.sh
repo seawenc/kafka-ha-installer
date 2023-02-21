@@ -14,14 +14,13 @@ FOR_SEQ=1
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
   print_log warn "2.1.在$ip 节点安装kafka"
-
+  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   [[ -f "$installpath/packages/kafka.gz" ]] && scp -P $ssh_port $installpath/packages/kafka.gz $ip:$BASE_PATH/kafka/
   [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/kafka/kafka.gz | docker load"
 
   # 先停止kafka 解决重复启动问题
   ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/kafka/*"
-  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
   ssh -p $ssh_port $ip  "chmod 777 $DATA_DIR/kafka"
   scp -P $ssh_port $installpath/conf/jaas.conf $ip:$BASE_PATH/kafka/
   ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${zkkpwd}/g' $BASE_PATH/kafka/jaas.conf"

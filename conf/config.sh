@@ -19,7 +19,19 @@ kafka_msg_storage_hours=84
 zkkuser='admin'
 zkkpwd='aaBB1122'
 
-# 监控工具efak安装在哪台服务器上,默认是第一台服务器，若想修改，请直接写死
+# 监控工具efak安装在哪台服务器上,默认是排序后的第一台服务器，若想修改，请直接写死
 efak_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -1`
+
+#efak数据库类型,值有：（若直接将efak.properties文件中直接将数据库信息写死，则可不用管以下参数）
+#    local:使用本地数据库，不太稳定，可能会偶尔锁库，若使用此种模式，则以下其它配置则无效
+#    mysql-auto: efak安装脚本，自动安装一个mysql
+#    mysql-ext : 使用外部已有mysql
+efak_db_type=local
+# 当 efak_db_type=mysql-auto时，mysql安装在哪一台服务器，默认是排序后的第二台，若想修改，请直接写死，其它类型时，此配置无效
+efak_db_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -2 | tail -1`
+# 以下三个参数在efak_db_type!=local时生效
+efak_db_jdbc=jdbc:mysql://${efak_db_ip}:33306/efak?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+efak_db_user=efak
+efak_db_pwd=aaBB1122
 ##############################################################
 

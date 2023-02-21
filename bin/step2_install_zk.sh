@@ -20,11 +20,10 @@ FOR_SEQ=1
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
+  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
   [[ -f "$installpath/packages/zk.gz" ]] && scp -P $ssh_port $installpath/packages/zk.gz $ip:$BASE_PATH/zookeeper/
   [[ -f "$installpath/packages/zk.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/zookeeper/zk.gz | docker load"
-
   print_log warn "2.1.在$ip 节点安装zookeeper"
-  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
   ## 写入集群节点信息
   print_log info "开始启动$ip 的zookeeper"
   ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/zookeeper/*"

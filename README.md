@@ -22,14 +22,18 @@ docker地址：<https://hub.docker.com/r/bitnami/kafka>
 docker地址：<https://hub.docker.com/r/seawenc/efak>
 
 
-
 ## 2.版本更新记录
 
 
-**v2.5.0(计划中)**
+**v2.6.0(计划中)**
 
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
->
+
+**v2.5.0**.2023-02-22
+
+> * 1.将ssh端口提成参数
+> * 2.efak数据库添加自动安装脚本
+
 **v2.4.0**.2023-02-17
 
 > * 1.加入docker一键安装
@@ -124,7 +128,7 @@ docker save seawenc/efak:3.0.6 | gzip > efak.gz
 │   │    ├── daemon.json        : docker核心配置文件
 │   │    └── docker.service     : docker服务文件
 │   ├── config.sh               : 核心配置文件，具体配置项，请看下面介绍
-│   ├── efak.properties         : 监控工具efak的配置文件，可不用修改
+│   ├── efak.properties         : 监控工具efak的配置文件，,默认使用本地数据库，建议使用外部mysql
 │   └── jaas.conf               : jaas认证文件，若不用新加kafka用户，则可不用修改
 ├── docs                        : 项目文档目录
 ├── debug                        : kafka与zookeeper调试脚本
@@ -173,7 +177,7 @@ sh bin/step1_install_docker.sh
 sh bin/step2_install_zk.sh
 # 步骤3：安装kafka
 sh bin/step3_install_kafka.sh
-# 步骤4：安装efak
+# 步骤4：安装efak，建议使用mysql数据库
 sh bin/step4_install_efak.sh
 ```
 > 0. 安装过程中，请仔细阅读每一行日志
