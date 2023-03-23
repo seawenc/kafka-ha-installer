@@ -43,6 +43,8 @@ do
            -e JMX_PORT="9999" \
            -e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \
            -e KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \
+           -e KAFKA_CFG_MAX_PARTITION_FETCH_BYTES=10485760 \
+           -e KAFKA_CFG_MAX_REQUEST_SIZE=10485760 \
            -e KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT \
            -v ${BASE_PATH}/kafka/jaas.conf:/opt/bitnami/kafka/config/kafka_jaas.conf \
            -e KAFKA_OPTS=\"-Djava.security.auth.login.config=/opt/bitnami/kafka/config/kafka_jaas.conf\" \
