@@ -1,5 +1,5 @@
 installpath=$(cd `dirname $0`;cd ../;pwd)
-source $installpath/config/config.sh
+source $installpath/conf/config.sh
 source $installpath/bin/common.sh
 
 function check_docker(){

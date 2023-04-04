@@ -21,6 +21,7 @@ for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/zookeeper $BASE_PATH/zookeeper/conf $BASE_PATH/zookeeper/logs"
+  ssh -p $ssh_port $ip  "chmod 777 $DATA_DIR/zookeeper"
   [[ -f "$installpath/packages/zk.gz" ]] && scp -P $ssh_port $installpath/packages/zk.gz $ip:$BASE_PATH/zookeeper/
   [[ -f "$installpath/packages/zk.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/zookeeper/zk.gz | docker load"
   [[ -f "$installpath/packages/zk.gz" ]] && ssh -p $ssh_port $ip "rm -rf $BASE_PATH/zookeeper/zk.gz"
@@ -33,12 +34,14 @@ do
   ssh -p $ssh_port $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
            -p 2181:2181 -p 2888:2888 -p 3888:3888 \
-           -v $DATA_DIR/zookeeper:/data \
-           -v $DATA_DIR/zookeeper/logs:/logs \
+           -v $DATA_DIR/zookeeper:/bitnami/zookeeper \
            -e ZOO_SERVER_ID=${FOR_SEQ} \
            -e ZOO_LISTEN_ALLIPS_ENABLED=yes \
            -e ALLOW_ANONYMOUS_LOGIN=no \
            -e ZOO_ENABLE_AUTH=yes \
+           -e ZOO_INIT_LIMIT=30 \
+           -e ZOO_SYNC_LIMIT=30 \
+           -e ZOO_TICK_TIME=30000 \
            -e ZOO_SERVER_USERS=\"${zkkuser}\" \
            -e ZOO_SERVER_PASSWORDS=\"${zkkpwd}\" \
            -e ZOO_CLIENT_USER=${zkkuser} \
