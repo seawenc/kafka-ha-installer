@@ -39,9 +39,6 @@ do
            -e ZOO_LISTEN_ALLIPS_ENABLED=yes \
            -e ALLOW_ANONYMOUS_LOGIN=no \
            -e ZOO_ENABLE_AUTH=yes \
-           -e ZOO_INIT_LIMIT=30 \
-           -e ZOO_SYNC_LIMIT=30 \
-           -e ZOO_TICK_TIME=30000 \
            -e ZOO_SERVER_USERS=\"${zkkuser}\" \
            -e ZOO_SERVER_PASSWORDS=\"${zkkpwd}\" \
            -e ZOO_CLIENT_USER=${zkkuser} \
