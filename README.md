@@ -149,6 +149,8 @@ declare -A servers=()
 servers["192.168.56.11"]="192.168.55.11"
 servers["192.168.56.12"]="192.168.55.12"
 servers["192.168.56.13"]="192.168.55.13"
+# ssh的端口号
+ssh_port=22
 # 内网kafka 端口
 kafka_port=9092
 # 外网kafka 端口
