@@ -576,7 +576,25 @@ efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
 
 默认以上监控数据会输出到topic:TOPIC_MONITOR,若想修改，则在配置文件中加入配置项,例：efak.monitor.topic=topic_monitor
 
+## 7.安全
 
+### jmx未授权漏洞
+以上安装方式会出现jmx未授权漏洞，此问题暂时只能通过防火墙来控制，以iptables为例：
+```bash
+# 在3台机器上执行以下脚本，其中172.26.3.x 三个ip为kafka服务器ip，192.168.255.0/24为docker容器ip，请自行替换
+systemctl restart docker
+iptables -I DOCKER-USER -p tcp --dport 9999 -j DROP
+iptables -I DOCKER-USER -p tcp --dport 9999 -s 172.26.3.10 -j ACCEPT
+iptables -I DOCKER-USER -p tcp --dport 9999 -s 172.26.3.11 -j ACCEPT
+iptables -I DOCKER-USER -p tcp --dport 9999 -s 172.26.3.12 -j ACCEPT
+iptables -I DOCKER-USER -p tcp --dport 9999 -s 192.168.255.0/24 -j ACCEPT
+iptables -nL --line-number
+iptables-save
+iptables-save > /etc/sysconfig/iptables
+systemctl enable iptables.service
+systemctl enable iptables.service
+iptables -nL --line-number
+```
 
 
 
