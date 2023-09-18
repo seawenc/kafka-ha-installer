@@ -13,4 +13,4 @@ done
 
 start_zk
 print_log info "######## 2.等待zookeeper启动 ##########################"
-watch -n 6 -d $installpath/bin/check_zk.sh
+watch -n 6 -d bash $installpath/bin/check_zk.sh

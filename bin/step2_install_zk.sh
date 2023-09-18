@@ -30,7 +30,9 @@ do
   ## 写入集群节点信息
   print_log info "开始启动$ip 的zookeeper"
   ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/zookeeper/*"
-  ssh -p $ssh_port $ip "echo 'docker rm zookeeper' > $BASE_PATH/zookeeper/run.sh"
+  ssh -p $ssh_port $ip  "chmod 777 -R $BASE_PATH/zookeeper"
+  ssh -p $ssh_port $ip "echo 'docker stop zookeeper' > $BASE_PATH/zookeeper/run.sh"
+  ssh -p $ssh_port $ip "echo 'docker rm zookeeper' >> $BASE_PATH/zookeeper/run.sh"
   ssh -p $ssh_port $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
            -p 2181:2181 -p 2888:2888 -p 3888:3888 \
@@ -55,7 +57,7 @@ done
 install_zk
 print_log info "########第二步:3.等待zookeeper启动,每10秒更新一次状态 ##########################"
 sleep 10
-watch -n 10 -d $installpath/bin/check_zk.sh
+watch -n 10 -d bash $installpath/bin/check_zk.sh
 
 print_log info "若需要调试zookeeper，执行以下指令安装ui（此ui存在弱密码，调试完成请删除）"
 ZK_SVC=`cat $installpath/conf/config.sh| grep 'servers\["' | awk -F '"' '{print $4":2181"}'| tr "\n" "," | sed 's/.$//'`

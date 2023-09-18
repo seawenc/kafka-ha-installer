@@ -11,4 +11,4 @@ done
 }
 start_kafka
 print_log info "#################等待kafka启动 ###############################"
-watch -d -n 5 $installpath/bin/check_kafka.sh
+watch -d -n 5 bash $installpath/bin/check_kafka.sh
