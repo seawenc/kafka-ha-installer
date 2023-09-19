@@ -29,6 +29,10 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
 
+**v2.5.1**.2023-09-18
+
+> * 1.修复zookeeper未挂载目录bug
+
 **v2.5.0**.2023-02-22
 
 > * 1.将ssh端口提成参数
@@ -337,15 +341,22 @@ public class KafkaConsumer {
 #0 先进入容器
 docker exec -ti kafka bash
 #1.查看topic明细
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --describe --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --describe --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
 
 #2.修改topic：test的消息存储时间为48小时
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
 #3.立刻删除过期数据
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
 
 #4.修改分区数为3
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --zookeeper 192.168.56.11:2181,192.168.56.13:2181,192.168.56.12:2181  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
+
+#5.修改kafka topic的参数
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092 --alter --entity-name my_connect_offsets --entity-type topics --add-config cleanup.policy=compact --command-config /opt/bitnami/kafka/config/producer.properties
+
+#6.查看topic的明细
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh  --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092  --describe --topic my_connect_offsets --command-config /opt/bitnami/kafka/config/producer.properties
+
 ```
 
 ### 5.2、kafka离线升级
