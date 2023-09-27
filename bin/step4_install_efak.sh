@@ -22,6 +22,7 @@ function install_efak(){
     ssh -p $ssh_port $efak_ip "echo 'docker stop efak' > $BASE_PATH/efak/run.sh"
     ssh -p $ssh_port $efak_ip "echo 'docker rm -f efak' >> $BASE_PATH/efak/run.sh"
     ssh -p $ssh_port $efak_ip "echo 'docker run --name efak --restart=always -p 8048:8048 -d -m 3G --memory-swap 3G \
+                          --ulimit nofile=10240:10240 --ulimit nproc=10240:10240 \
                           -v ${DATA_DIR}/efak:/opt/app/efak/db \
                           -v $BASE_PATH/efak/system-config.properties:/opt/app/efak/conf/system-config.properties \
                 seawenc/efak:3.0.6' >> $BASE_PATH/efak/run.sh"
