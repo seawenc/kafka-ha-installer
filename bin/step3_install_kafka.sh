@@ -33,7 +33,8 @@ do
   ssh -p $ssh_port $ip "echo 'docker run --name kafka -d --restart=unless-stopped \
            -e ALLOW_PLAINTEXT_LISTENER=yes \
            -e KAFKA_BROKER_ID=${FOR_SEQ} \
-           -e KAFKA_MESSAGE_MAX_BYTES=100001200 -p 9999:9999 -p ${kafka_port}:${kafka_port} -p ${kafka_port_outside}:${kafka_port_outside} \
+           -e KAFKA_MESSAGE_MAX_BYTES=100001200 \
+           --net=host \
            -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \
            -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \
            -e KAFKA_CFG_LISTENERS=CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \

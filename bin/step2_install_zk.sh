@@ -35,7 +35,7 @@ do
   ssh -p $ssh_port $ip "echo 'docker rm zookeeper' >> $BASE_PATH/zookeeper/run.sh"
   ssh -p $ssh_port $ip "echo 'docker run --name zookeeper -ti -d \
            --restart=unless-stopped \
-           -p 2181:2181 -p 2888:2888 -p 3888:3888 \
+           --net=host \
            -v $DATA_DIR/zookeeper:/bitnami/zookeeper \
            -e ZOO_SERVER_ID=${FOR_SEQ} \
            -e ZOO_LISTEN_ALLIPS_ENABLED=yes \
