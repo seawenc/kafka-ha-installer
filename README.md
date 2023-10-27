@@ -610,9 +610,8 @@ iptables -nL --line-number
 
 ### 老版本zookeeper挂载目录不正确修复
 
-在2023年4月份之前的版本，step2_install_zk.sh脚本中，挂载路径不正确：`-v $DATA_DIR/zookeeper:/data`，正确的路径为：`-v $DATA_DIR/zookeeper:/bitnami/zookeeper`
-此问题若zookeeper出现重启，集群将会异常，通过以下方式，可不停服务升级：
-
+在2023年4月份之前的版本，step2_install_zk.sh脚本中，挂载路径不正确：`-v $DATA_DIR/zookeeper:/data`，正确的路径为：`-v $DATA_DIR/zookeeper:/bitnami/zookeeper`  
+此问题会导致：若zookeeper出现重启，集群将会异常，通过以下方式，可不停服务升级：  
 ```shell
 ##### 以下脚本一台一台处理，启动成功后，再进行另外一台
 
