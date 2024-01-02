@@ -28,6 +28,7 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 **v2.6.0(计划中)**
 
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
+> * 2.将efak切换为：https://github.com/didi/KnowStreaming
 
 **v2.5.1**.2023-09-18
 
