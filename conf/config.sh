@@ -15,8 +15,9 @@ kafka_port=9092
 kafka_port_outside=9093
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
-# kafka与zookeeper的共用一个账号密码(密码请不要包含@符号)
+# kafka与zookeeper的共用一个账号密码
 zkkuser='admin'
+# 密码请不要包含@和#号,不要包含@和#号,不要包含@和#号
 zkkpwd='aaBB1122'
 
 # 监控工具efak安装在哪台服务器上,默认是排序后的第一台服务器，若想修改，请直接写死
