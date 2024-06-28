@@ -35,6 +35,9 @@ do
            -e KAFKA_BROKER_ID=${FOR_SEQ} \
            -e KAFKA_MESSAGE_MAX_BYTES=100001200 \
            --net=host \
+           -e KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND=false \
+           -e KAFKA_CFG_AUTHORIZER_CLASS_NAME=kafka.security.authorizer.AclAuthorizer \
+           -e KAFKA_CFG_SUPER_USERS=User:admin \
            -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \
            -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \
            -e KAFKA_CFG_LISTENERS=CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \

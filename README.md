@@ -30,6 +30,11 @@ docker地址：<https://hub.docker.com/r/seawenc/efak>
 > * 1.将kafka认证方式修改为Scram方式，以支持动态新增用户
 > * 2.将efak切换为：https://github.com/didi/KnowStreaming
 
+**v2.6.0**.2024-06-28
+
+> * 1.开启权限控制，默认除admin外用户无权限，需手动授权
+> * 2.操作示例添加对权限的操作
+
 **v2.5.1**.2023-09-18
 
 > * 1.修复zookeeper未挂载目录bug
@@ -358,6 +363,21 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --bootstrap-server 172.26.23.1
 #6.查看topic的明细
 KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh  --bootstrap-server 172.26.23.192:9092,172.26.23.193:9092,172.26.23.194:9092  --describe --topic my_connect_offsets --command-config /opt/bitnami/kafka/config/producer.properties
 
+########################### 对权限的操作
+# 列出所有主题的ACL设置
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list
+
+# 列出指定主题的ACL设置
+KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list --topic test
+
+# 权限设置： 设置允许u1用户对test主题拥有所有权限 --operation支持的操作有：READ、WRITE、DELETE、CREATE、ALTER、DESCRIBE、ALL，示例：
+KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --operation ALL --topic test
+
+# 权限设置： 设置u1用户对topic主题读操作，前者就包含了允许消费者在主题上READ、DESCRIBE以及在消费者组在主题上READ。
+KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --consumer  --topic test
+
+# 权限设置： 设置u1用户对topic主题写操作
+KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --producer --topic test
 ```
 
 ### 5.2、kafka离线升级
