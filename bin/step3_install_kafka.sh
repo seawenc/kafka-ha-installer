@@ -64,7 +64,7 @@ do
             -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \
             -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \
            -v ${DATA_DIR}/kafka:/bitnami/kafka \
-            seawenc/bitnami-kafka:3.4.0' >> $BASE_PATH/kafka/run.sh"
+            bitnami/kafka:3.9.0' >> $BASE_PATH/kafka/run.sh"
            # 若采用kafka加密认证，则加上以下参数
   ssh -p $ssh_port $ip "chmod +x $BASE_PATH/kafka/run.sh"
   ssh -p $ssh_port $ip "sh $BASE_PATH/kafka/run.sh"

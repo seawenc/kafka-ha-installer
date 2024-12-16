@@ -626,7 +626,28 @@ iptables-save > /etc/sysconfig/iptables
 systemctl enable iptables.service
 systemctl enable iptables.service
 iptables -nL --line-number
+
+# 删除一条规则
+
+iptables -D INPUT -p tcp --dport 80 -j ACCEPT
 ```
+
+ufw 防火墙:
+```bash
+
+ufw enable
+ufw allow from 172.26.3.10
+ufw allow from 172.26.3.11
+ufw allow from 172.26.3.12
+
+ufw allow 9092/tcp
+ufw allow 9093/tcp
+ufw allow 8048/tcp
+
+ufw reload
+
+```
+
 
 
 ### 老版本zookeeper挂载目录不正确修复

@@ -21,7 +21,7 @@ docker run -d --name kafka-server --net=host \
       -e KAFKA_CLIENT_USERS=admin1,admin2 \
       -e KAFKA_CLIENT_PASSWORDS=aabb@12,aabb@13 \
       -v /opt/dapp/kafka/data:/bitnami/kafka/data \
-    bitnami/kafka:latest
+    bitnami/kafka:3.9.0
 docker logs -f kafka-server
 EOF
 chmod +x $DATA_DIR/run.sh
