@@ -15,6 +15,7 @@ for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "2.1.在$ip 节点安装kafka"
   ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
+  ssh -p $ssh_port $ip  "ls $BASE_PATH/kafka/"
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   [[ -f "$installpath/packages/kafka.gz" ]] && scp -P $ssh_port $installpath/packages/kafka.gz $ip:$BASE_PATH/kafka/
   [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/kafka/kafka.gz | docker load"
@@ -24,59 +25,73 @@ do
   ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/kafka/*"
   ssh -p $ssh_port $ip  "chmod 777 $DATA_DIR/kafka"
   scp -P $ssh_port $installpath/conf/jaas.conf $ip:$BASE_PATH/kafka/
-  ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${zkkpwd}/g' $BASE_PATH/kafka/jaas.conf"
-  ssh -p $ssh_port $ip "sed -i 's/@KAFKA_USER@/${zkkuser}/g' $BASE_PATH/kafka/jaas.conf"
+  # 将ldap插件同步到各个节点中
+  ssh -p $ssh_port $ip  "mkdir -p $BASE_PATH/kafka/libs"
+  scp -P $ssh_port $installpath/ldap-auth/target/ldap-auth-1.0.jar $ip:$BASE_PATH/kafka/libs/
+  ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${ldap_pwd}/g' $BASE_PATH/kafka/jaas.conf"
+  ssh -p $ssh_port $ip "sed -i 's/@KAFKA_USER@/${ldap_user}/g' $BASE_PATH/kafka/jaas.conf"
   ## 启动kafka 
   print_log info "开始启动$ip 的kafka"
   
   ssh -p $ssh_port $ip "echo 'docker rm kafka' > $BASE_PATH/kafka/run.sh"
-  ssh -p $ssh_port $ip "echo 'docker run --name kafka -d --restart=unless-stopped \
-           -e ALLOW_PLAINTEXT_LISTENER=yes \
-           -e KAFKA_BROKER_ID=${FOR_SEQ} \
-           -e KAFKA_MESSAGE_MAX_BYTES=100001200 \
-           --net=host \
-           -e KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND=false \
-           -e KAFKA_CFG_AUTHORIZER_CLASS_NAME=kafka.security.authorizer.AclAuthorizer \
-           -e KAFKA_CFG_SUPER_USERS=User:admin \
-           -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \
-           -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \
-           -e KAFKA_CFG_LISTENERS=CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \
-           -e KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT \
-           -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT \
-           -e KAFKA_CFG_SASL_ENABLED_MECHANISMS=PLAIN \
-           -e JMX_PORT="9999" \
-           -e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \
-           -e KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \
-           -e KAFKA_CFG_MAX_PARTITION_FETCH_BYTES=10485760 \
-           -e KAFKA_CFG_MAX_REQUEST_SIZE=10485760 \
-           -e KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT \
-           -v ${BASE_PATH}/kafka/jaas.conf:/opt/bitnami/kafka/config/kafka_jaas.conf \
-           -e KAFKA_OPTS=\"-Djava.security.auth.login.config=/opt/bitnami/kafka/config/kafka_jaas.conf\" \
-           -e KAFKA_JMX_OPTS=\"-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.rmi.port=9999 -Djava.rmi.server.hostname=${ip} -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false\" \
-           -e KAFKA_CLIENT_USERS=${zkkuser} \
-           -e KAFKA_CLIENT_PASSWORDS=${zkkpwd} \
-           -e KAFKA_INTER_BROKER_USER=${zkkuser} \
-           -e KAFKA_INTER_BROKER_PASSWORD=${zkkpwd} \
-           -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \
-           -e KAFKA_ZOOKEEPER_USER=${zkkuser} \
-           -e KAFKA_ZOOKEEPER_PASSWORD=${zkkpwd} \
-           -e KAFKA_CFG_ADVERTISED_HOST_NAME=${ip} \
-            -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \
-            -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \
-           -v ${DATA_DIR}/kafka:/bitnami/kafka \
-            bitnami/kafka:3.9.0' >> $BASE_PATH/kafka/run.sh"
-           # 若采用kafka加密认证，则加上以下参数
-  ssh -p $ssh_port $ip "chmod +x $BASE_PATH/kafka/run.sh"
+
+  cat > /tmp/run.sh <<EOF
+docker stop kafka
+docker rm kafka
+docker run --name kafka -d --restart=unless-stopped \\
+           -e ALLOW_PLAINTEXT_LISTENER=yes \\
+           -e KAFKA_BROKER_ID=${FOR_SEQ} \\
+           -e KAFKA_MESSAGE_MAX_BYTES=100001200 \\
+           --net=host \\
+           -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \\
+           -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \\
+           -e KAFKA_CFG_LISTENERS=CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \\
+           -e KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT \\
+           -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT \\
+           -e KAFKA_CFG_SASL_ENABLED_MECHANISMS=PLAIN \\
+           -e JMX_PORT="9999" \\
+           -e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \\
+           -e KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \\
+           -e KAFKA_CFG_MAX_PARTITION_FETCH_BYTES=10485760 \\
+           -e KAFKA_CFG_MAX_REQUEST_SIZE=10485760 \\
+           -e KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT \\
+           -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.rmi.port=9999 -Djava.rmi.server.hostname=${ip} -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false" \\
+           -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \\
+           -e KAFKA_ZOOKEEPER_USER=${ldap_user} \\
+           -e KAFKA_ZOOKEEPER_PASSWORD=${ldap_pwd} \\
+           -v ${BASE_PATH}/kafka/jaas.conf:/opt/bitnami/kafka/config/kafka_jaas.conf \\
+           -e KAFKA_OPTS="-Djava.security.auth.login.config=/opt/bitnami/kafka/config/kafka_jaas.conf" \\
+              -e KAFKA_CFG_AUTHZ_LDAP_HOST=${ldap_host} \\
+              -e KAFKA_CFG_AUTHZ_LDAP_PORT=${ldap_port} \\
+              -e KAFKA_CFG_AUTHZ_LDAP_BASE_DN=${ldap_base_dn} \\
+              -e KAFKA_CFG_AUTHZ_LDAP_USERNAME_TO_DN_FORMAT=${ldap_name_format} \\
+              -v $BASE_PATH/kafka/libs/ldap-auth-1.0.jar:/opt/bitnami/kafka/libs/ldap-auth-1.0.jar \\
+              -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=LdapAuthenticateCallbackHandler \\
+              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=LdapAuthenticateCallbackHandler \\
+              -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
+              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
+           -e KAFKA_CFG_ADVERTISED_HOST_NAME=${ip} \\
+           -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \\
+           -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \\
+           -v ${DATA_DIR}/kafka:/bitnami/kafka \\
+            bitnami/kafka:3.9.0
+            # 调试时用： -e KAFKA_DEBUG=TRUE -e JAVA_DEBUG_PORT=0.0.0.0:5555 \\
+EOF
+  chmod +x /tmp/run.sh
+  scp -P $ssh_port /tmp/run.sh $ip:$BASE_PATH/kafka/
+
   ssh -p $ssh_port $ip "sh $BASE_PATH/kafka/run.sh"
   sleep 3
   ssh -p $ssh_port $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/producer.properties\""
   ssh -p $ssh_port $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/consumer.properties\""
-  ssh -p $ssh_port $ip "cat $BASE_PATH/kafka/run.sh | sed 's/            / \\\\\\n/g'"
+  ssh -p $ssh_port $ip "cat $BASE_PATH/kafka/run.sh"
   let FOR_SEQ+=1 
   print_log info "查看日志："
   print_log info "ssh -p $ssh_port $ip 'docker logs -f kafka'"
 done
 }
+           #-v ${BASE_PATH}/kafka/jaas.conf:/opt/bitnami/kafka/config/kafka_jaas.conf \
+           #-e KAFKA_OPTS=\"-Djava.security.auth.login.config=/opt/bitnami/kafka/config/kafka_jaas.conf\" \
 
 install_kafka
 print_log info "#################第三步:等待kafka启动 ###############################"

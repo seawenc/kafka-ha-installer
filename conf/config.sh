@@ -1,24 +1,32 @@
 ###############################0.参数配置##########################
-# docker版本,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/
-DOCKER_VERSION=20.10.19
+# 需果需要自动安装docker,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/
+
 # 基本路径，zookeeper与kafka都安装在此目录,请确保此目录有权限
 BASE_PATH=/opt/app/zkafka
 # 数据存放目录
 DATA_DIR=/opt/app/zkafka/data
 # kafka地址,格式:  servers[内网地址]="外网地址" （如果没有网外地址，则与内网设置为一致）
 declare -A servers=()
-servers["192.168.56.11"]="192.168.55.11"
-servers["192.168.56.12"]="192.168.55.12"
-servers["192.168.56.13"]="192.168.55.13"
+servers["192.168.56.10"]="192.168.56.10"
+servers["192.168.56.12"]="192.168.56.12"
+servers["192.168.56.13"]="192.168.56.13"
 ssh_port=22
-kafka_port=9092
-kafka_port_outside=9093
+# kafka内网端口号
+kafka_port=9093
+# kafka外网端口号
+kafka_port_outside=9092
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
-# kafka与zookeeper的共用一个账号密码
-zkkuser='admin'
-# 密码请不要包含@和#号,不要包含@和#号,不要包含@和#号
-zkkpwd='aaBB1122'
+
+# ldap相关信息(zookeeper也使用这个用户名密码)
+ldap_user=admin
+# 密码请 不要包含@和#号, 不要包含@和#号, 不要包含@和#号
+ldap_pwd=aaBB@1122
+ldap_host=172.26.15.144
+ldap_port=389
+ldap_base_dn='ou=app,dc=travelsky,dc=com'
+ldap_name_format='cn=%s,ou=app,dc=travelsky,dc=com'
+
 
 # 监控工具efak安装在哪台服务器上,默认是排序后的第一台服务器，若想修改，请直接写死
 efak_ip=`echo ${!servers[*]} | tr " " "\n" | sort | head -1`
