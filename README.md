@@ -382,6 +382,16 @@ KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper
 KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --producer --topic test
 ```
 
+### 5.2、使用ranger账号登录kafka失败
+在3.0x版本中，如果使用了ranger账号登录kafka，当确认账号密码是正确的，仍然不能登录时，可能是由于之前输入了错误的密码，导致账号被锁定了，等待一段时间后恢复，或换新账号
+可以登录ranger中查看日志
+```bash
+[root@master bin]: docker exec -ti ranger bash
+[root@ranger ranger-admin]: tail -10f ews/logs/ranger-admin-ranger-.log
+2024-12-20 03:20:47,282 [http-nio-6080-exec-12] INFO [SpringEventListener.java:109] Login Unsuccessful:kafka | Ip Address:192.168.56.1 | User account is locked
+2024-12-20 03:21:25,783 [http-nio-6080-exec-12] INFO [SpringEventListener.java:109] Login Unsuccessful:kafka | Ip Address:192.168.56.1 | User account is locked
+```
+
 ### 5.2、kafka离线升级
 
 提供两种升级方式，以下以2.8.1升级到2.8.2为例：

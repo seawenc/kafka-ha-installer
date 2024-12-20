@@ -38,7 +38,7 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
     private void configure(final Map<String, ?> configs) {
         host = getRequiredStringProperty(configs, CONFIG_RANGER_HOST);
         port =  getIntProperty(configs, CONFIG_RANGER_PORT,DEFAULT_PORT);
-        LOG.info("ranger认证插件 Configured.完成");
+        LOG.info("ranger plugin Configured");
     }
 
     private int getIntProperty(final Map<String, ?> configs, final String name,Integer defaultValue) {
@@ -73,7 +73,7 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
     public void handle(final Callback[] callbacks)
     throws UnsupportedCallbackException {
         if (host == null) {
-            throw new IllegalStateException("Handler 没有被初始化，请设置参数,authz.ranger.host，authz.ranger.port");
+            throw new IllegalStateException("Handler not init，please set: authz.ranger.host，authz.ranger.port");
         }
         String username = null;
         PlainAuthenticateCallback plainAuthenticateCallback = null;
@@ -87,7 +87,7 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
             }
         }
         if (username == null) {
-            throw new IllegalStateException("没有获取到登录用户名.");
+            throw new IllegalStateException("not get username.");
         }
         if (plainAuthenticateCallback == null) {
             throw new IllegalStateException("Expected PlainAuthenticationCallback was not found.");
@@ -98,12 +98,12 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
         try {
             authenticated = authenticate(username, password);
         } catch (Exception e) {
-            LOG.error("用户认证异常 \"" + username + "\".error:"+e.getMessage(),e);
+            LOG.error("user \"" + username + "\" login fail .error:"+e.getMessage(),e);
         }
         if (authenticated) {
-            LOG.info("用户： \"" + username + "\" 认证成功.");
+            LOG.info("user: \"" + username + "\" login success.");
         } else {
-            LOG.warn("用户：  \"" + username + "\" 登录"+String.format("http://%s:%s/login",host,port)+"失败,认证失败.");
+            LOG.warn("user:  \"" + username + "\" login "+String.format("http://%s:%s/login",host,port)+" fail.");
         }
         plainAuthenticateCallback.authenticated(authenticated);
     }
@@ -122,7 +122,8 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
             byte[] input = data.getBytes("utf-8");
             os.write(input, 0, input.length);
         }catch (Exception e){
-            LOG.error("ranger服务不可用，无法进行登录操作:" + path);
+            // ranger不可用
+            LOG.error("ranger service is unavailable and the login operation is not possible:" + path);
             return false;
         }
 
@@ -130,7 +131,7 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
         if (responseCode == HttpURLConnection.HTTP_OK) { // 检查是否成功
             return true;
         }
-        LOG.warn("用户: " + username+"登录失败,responseCode:"+responseCode);
+        LOG.warn("user : " + username+" login fail,responseCode:"+responseCode);
         return false;
     }
 

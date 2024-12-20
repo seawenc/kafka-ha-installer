@@ -70,13 +70,10 @@ docker run --name kafka -d --restart=unless-stopped \\
            -e KAFKA_ZOOKEEPER_PASSWORD=${ldap_pwd} \\
            -v ${BASE_PATH}/kafka/jaas.conf:/opt/bitnami/kafka/config/kafka_jaas.conf \\
            -e KAFKA_OPTS="-Djava.security.auth.login.config=/opt/bitnami/kafka/config/kafka_jaas.conf" \\
-              -e KAFKA_CFG_AUTHZ_LDAP_HOST=${ldap_host} \\
-              -e KAFKA_CFG_AUTHZ_LDAP_PORT=${ldap_port} \\
-              -e KAFKA_CFG_AUTHZ_LDAP_BASE_DN=${ldap_base_dn} \\
-              -e KAFKA_CFG_AUTHZ_LDAP_USERNAME_TO_DN_FORMAT=${ldap_name_format} \\
+              -e KAFKA_CFG_AUTHZ_RANGER_HOST=${ranger_host} \\
               -v $BASE_PATH/kafka/libs/plugin-auth-1.0.jar:/opt/bitnami/kafka/libs/plugin-auth-1.0.jar \\
-              -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ldap.LdapAuthenticateCallbackHandler \\
-              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ldap.LdapAuthenticateCallbackHandler \\
+              -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ranger.RangerAuthenticateCallbackHandler \\
+              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ranger.RangerAuthenticateCallbackHandler \\
               -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
               -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
            -e KAFKA_CFG_ADVERTISED_HOST_NAME=${ip} \\
