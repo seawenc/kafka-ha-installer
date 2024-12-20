@@ -1,9 +1,7 @@
 deploy/*
 */target/*
-dbdata
-build
+*/build/*
 *.iml
 .idea
-kerberos/data
-demo-code/.gradle
+
 

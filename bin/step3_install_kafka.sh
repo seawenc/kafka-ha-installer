@@ -14,27 +14,33 @@ FOR_SEQ=1
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort` 
 do
   print_log warn "2.1.在$ip 节点安装kafka"
-  ssh -p $ssh_port $ip  "mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka"
+  # 初始化目录
+  ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/kafka/* && mkdir -p $DATA_DIR/kafka $BASE_PATH/kafka && chmod 777 $DATA_DIR/kafka"
   ssh -p $ssh_port $ip  "ls $BASE_PATH/kafka/"
+
   echo "判断packages文件下是否有镜像包，如果有，则自动导入..."
   [[ -f "$installpath/packages/kafka.gz" ]] && scp -P $ssh_port $installpath/packages/kafka.gz $ip:$BASE_PATH/kafka/
   [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "gunzip -c $BASE_PATH/kafka/kafka.gz | docker load"
   [[ -f "$installpath/packages/kafka.gz" ]] && ssh -p $ssh_port $ip "rm -rf $BASE_PATH/kafka/kafka.gz"
 
-  # 先停止kafka 解决重复启动问题
-  ssh -p $ssh_port $ip  "rm -rf $BASE_PATH/kafka/*"
-  ssh -p $ssh_port $ip  "chmod 777 $DATA_DIR/kafka"
+  # 初始化jaas.conf
   scp -P $ssh_port $installpath/conf/jaas.conf $ip:$BASE_PATH/kafka/
-  # 将ldap插件同步到各个节点中
-  ssh -p $ssh_port $ip  "mkdir -p $BASE_PATH/kafka/libs"
-  scp -P $ssh_port $installpath/ldap-auth/target/ldap-auth-1.0.jar $ip:$BASE_PATH/kafka/libs/
   ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${ldap_pwd}/g' $BASE_PATH/kafka/jaas.conf"
   ssh -p $ssh_port $ip "sed -i 's/@KAFKA_USER@/${ldap_user}/g' $BASE_PATH/kafka/jaas.conf"
+
+  # 初始化ranger相关组件
+  ssh -p $ssh_port $ip  "mkdir -p $BASE_PATH/kafka/libs $BASE_PATH/kafka/bin"
+  scp -P $ssh_port $installpath/plugin-auth/build/libs/plugin-auth-1.0.jar $ip:$BASE_PATH/kafka/libs/
+  scp -P $ssh_port $installpath/plugin-auth/ranger/ranger-2.5.0-kafka-plugin.tar.gz $ip:$BASE_PATH/kafka/libs/
+  ssh -p $ssh_port $ip "cd $BASE_PATH/kafka/libs && tar -xzf ranger-2.5.0-kafka-plugin.tar.gz && mv ranger-2.5.0-kafka-plugin ranger-kafka-plugin && rm -rf *kafka-plugin.tar.gz"
+  ssh -p $ssh_port $ip "sed 's@POLICY_MGR_URL=@POLICY_MGR_URL=http://${ranger_host}:6080@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
+  ssh -p $ssh_port $ip "sed 's@REPOSITORY_NAME=@REPOSITORY_NAME=kafka-ha-policy@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
+  ssh -p $ssh_port $ip "sed 's@COMPONENT_INSTALL_DIR_NAME=@COMPONENT_INSTALL_DIR_NAME=/opt/bitnami/kafka/@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
+  #此entrypoint.sh加入了插件安装脚本
+  scp -P $ssh_port $installpath/bin/kafka-internal/entrypoint.sh $ip:$BASE_PATH/kafka/bin/
+
   ## 启动kafka 
   print_log info "开始启动$ip 的kafka"
-  
-  ssh -p $ssh_port $ip "echo 'docker rm kafka' > $BASE_PATH/kafka/run.sh"
-
   cat > /tmp/run.sh <<EOF
 docker stop kafka
 docker rm kafka
@@ -43,6 +49,9 @@ docker run --name kafka -d --restart=unless-stopped \\
            -e KAFKA_BROKER_ID=${FOR_SEQ} \\
            -e KAFKA_MESSAGE_MAX_BYTES=100001200 \\
            --net=host \\
+           -e KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND=false \\
+           -e KAFKA_CFG_SUPER_USERS=User:${ldap_user} \\
+           -e KAFKA_CFG_AUTHORIZER_CLASS_NAME=org.apache.ranger.authorization.kafka.authorizer.RangerKafkaAuthorizer \\
            -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \\
            -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \\
            -e KAFKA_CFG_LISTENERS=CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \\
@@ -65,17 +74,24 @@ docker run --name kafka -d --restart=unless-stopped \\
               -e KAFKA_CFG_AUTHZ_LDAP_PORT=${ldap_port} \\
               -e KAFKA_CFG_AUTHZ_LDAP_BASE_DN=${ldap_base_dn} \\
               -e KAFKA_CFG_AUTHZ_LDAP_USERNAME_TO_DN_FORMAT=${ldap_name_format} \\
-              -v $BASE_PATH/kafka/libs/ldap-auth-1.0.jar:/opt/bitnami/kafka/libs/ldap-auth-1.0.jar \\
-              -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=LdapAuthenticateCallbackHandler \\
-              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=LdapAuthenticateCallbackHandler \\
+              -v $BASE_PATH/kafka/libs/plugin-auth-1.0.jar:/opt/bitnami/kafka/libs/plugin-auth-1.0.jar \\
+              -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ldap.LdapAuthenticateCallbackHandler \\
+              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ldap.LdapAuthenticateCallbackHandler \\
               -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
               -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
            -e KAFKA_CFG_ADVERTISED_HOST_NAME=${ip} \\
            -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \\
            -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \\
+           -e RANGER_CONF_PATH=/opt/bitnami/kafka/config/ \\
            -v ${DATA_DIR}/kafka:/bitnami/kafka \\
+           -v ${BASE_PATH}/kafka/libs/ranger-kafka-plugin:/opt/ranger-kafka-plugin \\
+           -u root \\
+           -v ${BASE_PATH}/kafka/bin/entrypoint.sh:/opt/bitnami/scripts/kafka/entrypoint.sh \\
+           -e KAFKA_DEBUG=TRUE -e JAVA_DEBUG_PORT=0.0.0.0:5555 \\
             bitnami/kafka:3.9.0
-            # 调试时用： -e KAFKA_DEBUG=TRUE -e JAVA_DEBUG_PORT=0.0.0.0:5555 \\
+            # 调试时用：
+            #
+            #           -v ${BASE_PATH}/kafka/bin/entrypoint.sh:/opt/bitnami/scripts/kafka/entrypoint.sh \\
 EOF
   chmod +x /tmp/run.sh
   scp -P $ssh_port /tmp/run.sh $ip:$BASE_PATH/kafka/

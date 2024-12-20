@@ -56,8 +56,8 @@ docker run -d --name kafka-server --net=host \
        -e KAFKA_CFG_AUTHZ_LDAP_USERNAME_TO_DN_FORMAT=cn=%s,ou=app,dc=travelsky,dc=com \
        -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \
        -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \
-       -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=LdapAuthenticateCallbackHandler \
-       -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=LdapAuthenticateCallbackHandler \
+       -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ldap.LdapAuthenticateCallbackHandler \
+       -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ldap.LdapAuthenticateCallbackHandler \
       -v /opt/app/kafka/libs/ldap-auth-1.0.jar:/opt/bitnami/kafka/libs/ldap-auth-1.0.jar \
       -v /opt/app/kafka/data:/bitnami/kafka/data \
     bitnami/kafka:3.9.0

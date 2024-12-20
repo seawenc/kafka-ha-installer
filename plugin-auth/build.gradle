@@ -1,0 +1,40 @@
+// 需要gradle 7.4版本
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'com.github.johnrengelman.shadow'
+group = 'ranger-kafka-plugin'
+version = '1.0'
+sourceCompatibility = '1.8'
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+    dependencies { classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0' }
+}
+
+ext{
+    kafkaVersion='3.9.0'
+    scalaVersion='2.13'
+}
+
+
+repositories {
+    mavenLocal()
+    maven {allowInsecureProtocol = true;url "http://nexushost.x/repository/maven-public/"}
+    maven { url "https://maven.aliyun.com/repository/public/" }
+}
+
+dependencies {
+    compileOnly("org.apache.kafka:kafka-clients:${kafkaVersion}")
+    compileOnly("org.apache.kafka:kafka_${scalaVersion}:${kafkaVersion}")
+    compileOnly("org.apache.kafka:kafka-metadata:${kafkaVersion}")
+    compileOnly("org.slf4j:slf4j-jdk14:2.0.16")
+}
+
+shadowJar {
+    // 自定义包名
+    archiveName = String.format("%s-%s.jar",model.name, version)
+}
