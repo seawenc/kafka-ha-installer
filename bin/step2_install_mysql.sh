@@ -36,6 +36,9 @@ docker run --name mysql --restart=always \\
 -v $DATA_DIR/mysql:/var/lib/mysql \\
 -d mysql \\
 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+echo "已提交了启动任务，马上进行日志查看，若启动完成或失败后，请ctrl+c退出"
+sleep 2
+docker logs -f mysql
 EOF
 chmod +x /tmp/run.sh
   scp -P $ssh_port /tmp/run.sh $MYSQL_HOST:$BASE_PATH/mysql/

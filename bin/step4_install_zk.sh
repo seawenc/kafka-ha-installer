@@ -41,10 +41,10 @@ do
            -e ZOO_LISTEN_ALLIPS_ENABLED=yes \
            -e ALLOW_ANONYMOUS_LOGIN=no \
            -e ZOO_ENABLE_AUTH=yes \
-           -e ZOO_SERVER_USERS=\"${ldap_user}\" \
-           -e ZOO_SERVER_PASSWORDS=\"${ldap_pwd}\" \
-           -e ZOO_CLIENT_USER=${ldap_user} \
-           -e ZOO_CLIENT_PASSWORD=${ldap_pwd} \
+           -e ZOO_SERVER_USERS=\"admin\" \
+           -e ZOO_SERVER_PASSWORDS=\"${admin_user_pwd}\" \
+           -e ZOO_CLIENT_USER=${admin} \
+           -e ZOO_CLIENT_PASSWORD=${admin_user_pwd} \
            -e JVMFLAGS=\"-Dzookeeper.electionPortBindRetry=50\" \
            -e ZOO_SERVERS=\"${ZOO_SERVERS}\" \
             bitnami/zookeeper:3.6.3' >> $BASE_PATH/zookeeper/run.sh"

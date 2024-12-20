@@ -25,8 +25,7 @@ do
 
   # 初始化jaas.conf
   scp -P $ssh_port $installpath/conf/jaas.conf $ip:$BASE_PATH/kafka/
-  ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${ldap_pwd}/g' $BASE_PATH/kafka/jaas.conf"
-  ssh -p $ssh_port $ip "sed -i 's/@KAFKA_USER@/${ldap_user}/g' $BASE_PATH/kafka/jaas.conf"
+  ssh -p $ssh_port $ip "sed -i 's/@ZKKPWD@/${admin_user_pwd}/g' $BASE_PATH/kafka/jaas.conf"
 
   # 初始化ranger相关组件
   ssh -p $ssh_port $ip  "mkdir -p $BASE_PATH/kafka/libs $BASE_PATH/kafka/bin"
@@ -50,7 +49,7 @@ docker run --name kafka -d --restart=unless-stopped \\
            -e KAFKA_MESSAGE_MAX_BYTES=100001200 \\
            --net=host \\
            -e KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND=false \\
-           -e KAFKA_CFG_SUPER_USERS=User:${ldap_user} \\
+           -e KAFKA_CFG_SUPER_USERS=User:admin \\
            -e KAFKA_CFG_AUTHORIZER_CLASS_NAME=org.apache.ranger.authorization.kafka.authorizer.RangerKafkaAuthorizer \\
            -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \\
            -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \\
@@ -66,8 +65,8 @@ docker run --name kafka -d --restart=unless-stopped \\
            -e KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT \\
            -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.rmi.port=9999 -Djava.rmi.server.hostname=${ip} -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false" \\
            -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \\
-           -e KAFKA_ZOOKEEPER_USER=${ldap_user} \\
-           -e KAFKA_ZOOKEEPER_PASSWORD=${ldap_pwd} \\
+           -e KAFKA_ZOOKEEPER_USER=admin \\
+           -e KAFKA_ZOOKEEPER_PASSWORD=${admin_user_pwd} \\
            -v ${BASE_PATH}/kafka/jaas.conf:/opt/bitnami/kafka/config/kafka_jaas.conf \\
            -e KAFKA_OPTS="-Djava.security.auth.login.config=/opt/bitnami/kafka/config/kafka_jaas.conf" \\
               -e KAFKA_CFG_AUTHZ_RANGER_HOST=${ranger_host} \\
@@ -84,20 +83,18 @@ docker run --name kafka -d --restart=unless-stopped \\
            -v ${BASE_PATH}/kafka/libs/ranger-kafka-plugin:/opt/ranger-kafka-plugin \\
            -u root \\
            -v ${BASE_PATH}/kafka/bin/entrypoint.sh:/opt/bitnami/scripts/kafka/entrypoint.sh \\
-           -e KAFKA_DEBUG=TRUE -e JAVA_DEBUG_PORT=0.0.0.0:5555 \\
             bitnami/kafka:3.9.0
-            # 调试时用：
-            #
-            #           -v ${BASE_PATH}/kafka/bin/entrypoint.sh:/opt/bitnami/scripts/kafka/entrypoint.sh \\
+            # 调试时用：  -e KAFKA_DEBUG=TRUE -e JAVA_DEBUG_PORT=0.0.0.0:5555 \\
 EOF
   chmod +x /tmp/run.sh
   scp -P $ssh_port /tmp/run.sh $ip:$BASE_PATH/kafka/
 
   ssh -p $ssh_port $ip "sh $BASE_PATH/kafka/run.sh"
   sleep 3
-  ssh -p $ssh_port $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/producer.properties\""
-  ssh -p $ssh_port $ip "docker exec kafka sh -c \"echo '\nsecurity.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN' >> /opt/bitnami/kafka/config/consumer.properties\""
-  ssh -p $ssh_port $ip "cat $BASE_PATH/kafka/run.sh"
+  # 将用户名与密码，写到文件，不然指令无法使用
+  ssh -p $ssh_port $ip "docker exec kafka sh -c \"sed 's/username=\\\"user\\\" password=\\\"bitnami\\\"/username=\\\"admin\\\" password=\\\"${ranger_admin_pwd}\\\"/g' -i /opt/bitnami/kafka/config/producer.properties\""
+  ssh -p $ssh_port $ip "docker exec kafka sh -c \"sed 's/username=\\\"user\\\" password=\\\"bitnami\\\"/username=\\\"admin\\\" password=\\\"${ranger_admin_pwd}\\\"/g' -i /opt/bitnami/kafka/config/consumer.properties\""
+  #ssh -p $ssh_port $ip "cat $BASE_PATH/kafka/run.sh"
   let FOR_SEQ+=1 
   print_log info "查看日志："
   print_log info "ssh -p $ssh_port $ip 'docker logs -f kafka'"
