@@ -50,8 +50,7 @@ do
             bitnami/zookeeper:3.6.3' >> $BASE_PATH/zookeeper/run.sh"
   ssh -p $ssh_port $ip "chmod +x $BASE_PATH/zookeeper/run.sh"
   ssh -p $ssh_port $ip "sh $BASE_PATH/zookeeper/run.sh"
-  ssh -p $ssh_port $ip "cat $BASE_PATH/zookeeper/run.sh  | sed 's/            / \\\\\\n/g'"
-  let FOR_SEQ+=1  
+  let FOR_SEQ+=1
 done
 }
 install_zk

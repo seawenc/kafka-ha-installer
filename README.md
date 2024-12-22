@@ -1,6 +1,7 @@
 # v2.一键安装安装使用指南
 ## 1.说明
-本方案，需要至少三台服务器，每台服务器需要安装kafka与zookeeper，监控工具efak将安装在第一台，如果想要安装单机版本，[请点此查看方案](./docs/kafka-docker-single.md))
+本方案，需要至少4台服务器，每台服务器需要安装kafka与zookeeper，权限/与运维工具将安装在第一台，如果想要安装单机版本，[请点此查看方案](./docs/kafka-docker-single.md))，整体架构如下：  
+![framework.jpg](images/framework.jpg)  
 
 资源要求：4C/8g,`文件打开数`>=655350,文件打开数修改方式如下:  
 ```shell script
@@ -18,16 +19,13 @@ docker地址：<https://hub.docker.com/r/bitnami/zookeeper>
 * 2.kafka
 docker地址：<https://hub.docker.com/r/bitnami/kafka>
 
-* 3.efak
-docker地址：<https://hub.docker.com/r/seawenc/efak>
-
-
 ## 2.版本更新记录
 
-**v3.0.0**.2024-12-20
+**v3.0.0**.2024-12-22
 
 > * 1.kafka使用ranger进行认证与鉴权
 > * 2.docker去掉版本限制
+> * 3.将efak切换为了更轻量的kafka-ui
 
 **v2.6.0**.2024-06-28
 
@@ -254,7 +252,6 @@ sed -i 's/\r$//' conf/*.sh
 然后进入此策略，删除默认的权限：    
 ![ranger-setting4.jpg](images/ranger-setting4.jpg)
 
-
 完成后，再**继续安装zookeeper与kafka**， kafka安装完成后，进入策略，测试此策略是否可用 
 ![ranger-setting3.jpg](images/ranger-setting3.jpg)
 
@@ -267,9 +264,10 @@ sed -i 's/\r$//' conf/*.sh
 sh bin/step4_install_zk.sh
 # 步骤5：安装kafka（安装前请确认ranger被正确配置！！！）-》参考上面章节：《ranger-kafka配置》
 sh bin/step5_install_kafka.sh
-# 步骤6：安装efak，建议使用mysql数据库
-sh bin/step6_install_efak.sh
+# 步骤6：安装kafkaui
+sh bin/step6_install_kafkaui.sh
 ```
+kafkaui地址：http://${kafkaui_host}:8080, 用户名/密码：admin/${配置文件中kafkaui_pwd的值}
 
 ### 3.5.验证安装结果
 
@@ -278,10 +276,10 @@ sh bin/step6_install_efak.sh
 # 请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性
 docker exec -ti kafka bash
 # 新建topic： test，设置分区数据为3,副本数为2
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --create --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties                                                                                                                                                                                                 
+kafka-topics.sh --create --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties                                                                                                                                                                                                 
 # 试消息生产者与消费者
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --producer.config /opt/bitnami/kafka/config/producer.properties
-KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties
+kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --producer.config /opt/bitnami/kafka/config/producer.properties
+ kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties
 ```
 
 **若参接收到，则安装成功**
@@ -414,37 +412,37 @@ public class KafkaConsumer {
 #0 先进入容器
 docker exec -ti kafka bash
 #1.查看topic明细
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --describe --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh --describe --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
 
 #2.修改topic：test的消息存储时间为48小时
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
 #3.立刻删除过期数据
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
 
 #4.修改分区数为3
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh --alter --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh --alter --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
 
 #5.修改kafka topic的参数
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --entity-name my_connect_offsets --entity-type topics --add-config cleanup.policy=compact --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --entity-name my_connect_offsets --entity-type topics --add-config cleanup.policy=compact --command-config /opt/bitnami/kafka/config/producer.properties
 
 #6.查看topic的明细
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-topics.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092  --describe --topic my_connect_offsets --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092  --describe --topic my_connect_offsets --command-config /opt/bitnami/kafka/config/producer.properties
 
 ########################### 对权限的操作
 # 列出所有主题的ACL设置
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list
+kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list
 
 # 列出指定主题的ACL设置
-KAFKA_JMX_OPTS="" JMX_PORT=9955 kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list --topic test
+kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list --topic test
 
 # 权限设置： 设置允许u1用户对test主题拥有所有权限 --operation支持的操作有：READ、WRITE、DELETE、CREATE、ALTER、DESCRIBE、ALL，示例：
-KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --operation ALL --topic test
+ kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --operation ALL --topic test
 
 # 权限设置： 设置u1用户对topic主题读操作，前者就包含了允许消费者在主题上READ、DESCRIBE以及在消费者组在主题上READ。
-KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --consumer  --topic test
+ kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --consumer  --topic test
 
 # 权限设置： 设置u1用户对topic主题写操作
-KAFKA_JMX_OPTS="" JMX_PORT=9955  kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --producer --topic test
+ kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --producer --topic test
 ```
 
 ### 5.3、ranger-ui的admin账号登录失败
@@ -504,9 +502,6 @@ sed -i 's/2.8.1/2.8.2/g' {安装路径}/kafka/run.sh
 # 启动kafka
 sh bin/start_kafka.sh
 ```
-
-完成后查看efak查看kafka是否正常
-
 
 
 #### 5.2.2、软升级
@@ -578,145 +573,21 @@ v1.x版本原始为非docker版本，现需要全部重新升级到docker版本
 #### 设置策略
 
 在首页，点击`kafka-ha-policy` -> `Add New Policy`:  
-设置`kafka`这个用户只能读写topic:`test-kafka-show`,并且读时只能使用`test-group`这一个group  
-<span style="color:red">注意：</span> group策略与自动生成的策略：`all - consumergroup`**策略冲突**，若需要group控制生效，则需要删除默认策略中的 `select group`-> `public`然后保存
+设置`kafka`这个用户只能读写topic:`test-kafka-show`,并且读时只能使用`test-group`这一个group,下关配置如下图  
+![kafka-ranger-add-policy.jpg](images/kafka-ranger-add-policy.jpg)  
 
-![kafka-ranger-add-policy.jpg](images/kafka-ranger-add-policy.jpg)
-
+**<span style="color:red">注意：</span>** group策略与自动生成的策略：`all - consumergroup`**策略冲突**，若需要group控制生效，则需要删除默认策略中的 `select group`-> `public`然后保存
+ 
 ### 5.4、为何kafka的topic或group控制策略不生效？
 与默认的策略冲突，需要手动删除默认策略中的 `select group`-> `public`然后保存
 * topic的默认策略： `all - topic`
 * group的默认策略： `all - consumergroup`
 
 
-### 5.5、efak升级
-
-当前版本为3.0.6, 若有新版本，请替换版本号
-
-```bash
-# 下载镜像
-docker pull seawenc/efak:3.0.6
-# 导出镜像
-docker save seawenc/efak:3.0.6 > efak3.0.6.image
-# 将文件上传到服务器
-```
-
-在efak节点上执行：
-
-```bash
-docker load < efak3.0.3.image
-# 修改启动脚本的版本号为3.0.3
-vi  {安装路径}/efak/run.sh
-# 重启
-sh {安装路径}/efak/run.sh
-```
-
-
-
-
-
-## 6.efak监控与报警
-
-efak默认账号信息为:`admin/123456`,第一次登录后记得修改密 码!
-
-本套环境新增kafka报警通道，报警设置只支持group未消费消息报警配置； 
-
-### 1.查看topic group未消费的数据
-
-![topic-lag](images/efak-lag1.png)
-
-![image-20221110142238278](images/efak-lag2.png)
-
-
-
-### 2.监控lag参数
-
-`lag`(滞后）是kafka消费队列性能监控的重要指标，lag的值越大，表示kafka的堆积越严重。
-
-2.1.首先配置kafka报警通道
-
-![image-20221110142716435](images/efak-alarm-channel.png)
-
-2.2.配置具体的group lag报警
-
-![image-20221110143039247](images/efak-alarm-conf.png)
-
-配置完成后，就可看到报警的topic:`KAFKA_LAG_ALARM`已经有数据了
-
-消息格式为:
-```json
-{
-    "alarmContent": "{\"cluster\":\"cluster1\",\"current\":94462,\"max\":10,\"topic\":\"test\",\"group\":\"group1\"}", 
-    "alarmStatus": "PROBLEM", 
-    "alarmCluster": "cluster1", 
-    "alarmId": 1, 
-    "alarmProject": "Consumer", 
-    "alarmTimes": "current(0), max(10)", 
-    "alarmLevel": "P1", 
-    "title": "kafka通道 alarm!", 
-    "type": "kafka", 
-    "alarmDate": "2022-11-10 14:09:01"
-}
-```
-其中: `alarmContent -> current:` 为`lag`的值
-
-### 3.监控数据输出
-
-从版本 `seawenc/efak:3.0.3`支持，监控数据输出到kafka
-
-```json
-{
-    "brokersLeaderSkewed":33,  # 以下三个参数含义：
-    "brokersSkewed":0,         # https://blog.csdn.net/L13763338360/article/details/105427584
-    "brokersSpread":100,
-    "collectTime":"2022-11-30 10:28:00",
-    "consumers":[                # 消费者信息
-        {
-            "consumption1m":1432,         # 1分钟内消息，此消费都消费的消息数量
-            "group":"group1",             # group名称，相同的group共同消费一份数据
-            "lag":99872,                  # 还剩下多少数据没有被消费
-            "node":"192.168.56.12:9092",  # 它连接的是哪个节点
-            "offsets":[                   # 每个分区的消费明细
-                {
-                    "lag":33269,            # 在分区1上，还有多少消息未被消费
-                    "logSize":1,            # 没有太大意义，好像永远等于：partition的值
-                    "offset":189616,        # 当前offset你部署
-                    "owner":"192.168.56.1", # 消费者所在ip
-                    "partition":1           # 所在分区，一个分区一条数据，
-                },
-                ...
-            ]
-        }
-        ...        
-    ],
-    "partitions":[                # 分区明细
-        {
-            "isr":"[2,1]",        # 副本所在节点
-            "leader":2,           # 主副本你部署
-            "logSize":56217,      # 当前的数据条数
-            "partitionId":0,          # 分区编号
-            "preferredLeader":false,  # 是否是leader
-            "replicas":"[1, 2]",      # 与isr一致（重复）
-            "underReplicated":false   # 是否副本不足
-        },
-        ...
-    ],
-    "rows":168652,              # 现有数据量
-    "rows1m":3242,              # 1分钟内产生的数据量，
-    "storageSize":13.65,        # 所占空间大小，单位为：storagesizeUnit
-    "storagesizeUnit":"MB",     # 所占空间大小的单位
-    "topic":"test"              # topic名称
-}
-```
-
-关于指标`rows1m`：若上一分钟数据发生清理，暂时无法解决，此值将会小于0,应用程序需自行处理此问题
-
-默认以上监控数据会输出到topic:TOPIC_MONITOR,若想修改，则在配置文件中加入配置项,例：efak.monitor.topic=topic_monitor
-
 ## 7.安全
 
-### jmx未授权漏洞
-以上安装方式会出现jmx未授权漏洞，此问题暂时只能通过防火墙来控制，以iptables为例：
+### 开启防火墙
+例如，个别端口指定服务器可防问，以iptables为例：
 ```bash
 # 在3台机器上执行以下脚本，其中172.26.3.x 三个ip为kafka服务器ip，192.168.255.0/24为docker容器ip，请自行替换
 systemctl restart docker
@@ -747,35 +618,9 @@ ufw allow from 172.26.3.12
 
 ufw allow 9092/tcp
 ufw allow 9093/tcp
-ufw allow 8048/tcp
+ufw allow 6080/tcp
+ufw allow 8080/tcp
 
 ufw reload
 
 ```
-
-
-
-### 老版本zookeeper挂载目录不正确修复
-
-在2023年4月份之前的版本，step2_install_zk.sh脚本中，挂载路径不正确：`-v $DATA_DIR/zookeeper:/data`，正确的路径为：`-v $DATA_DIR/zookeeper:/bitnami/zookeeper`  
-此问题会导致：若zookeeper出现重启，集群将会异常，通过以下方式，可不停服务升级：  
-```shell
-##### 以下脚本一台一台处理，启动成功后，再进行另外一台
-
-DATA_DIR= #此值请在conf文件中获取，默认：/opt/app/zkafka/data
-docker cp zookeeper:/bitnami/zookeeper $DATA_DIR
-chmod 777 -R $DATA_DIR/zookeeper
-# 在启动脚本中修复挂载点：在vi脚本，加入：-v $DATA_DIR/zookeeper:/bitnami/zookeeper，并删除原来不正确的挂载
-vi $BASE_PATH/zookeeper/run.sh
-
-# 重新启动
-docker stop zookeeper && docker rm zookeeper
-sh $BASE_PATH/zookeeper/run.sh
-
-# 检查zookeeper状态,如果都正常，再处理下一台
-sh kafka-ha-installer/bin/check_zk.sh
-
-```
-
-
-

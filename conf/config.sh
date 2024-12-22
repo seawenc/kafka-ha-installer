@@ -16,6 +16,8 @@ ssh_port=22
 kafka_port=9093
 # kafka外网端口号
 kafka_port_outside=9092
+# broker节点之前的通信端口
+kafka_port_broker=9091
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
 # admin账号密码，此密码将使用在zookeeper,及ranger,mysql的默认密码（请修改）

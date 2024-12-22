@@ -29,4 +29,10 @@ fi
 echo "kafka初始化完成，马上进行ranger插件初始化..."
 bash /opt/ranger-kafka-plugin/enable-kafka-plugin.sh
 echo "ranger插件初始化完成，马上进行ranger插件初始化..."
+# 设置jmx权限
+#chown kafka /opt/bitnami/kafka/bin/kafka-internal/jmx/jmxremote.password
+#chown kafka /opt/bitnami/kafka/bin/kafka-internal/jmx/jmxremote.access
+# 解决老是报错问题，虽然不影响功能
+useradd admin
+
 exec "$@"

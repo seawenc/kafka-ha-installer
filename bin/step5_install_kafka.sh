@@ -35,8 +35,11 @@ do
   ssh -p $ssh_port $ip "sed 's@POLICY_MGR_URL=@POLICY_MGR_URL=http://${ranger_host}:6080@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
   ssh -p $ssh_port $ip "sed 's@REPOSITORY_NAME=@REPOSITORY_NAME=kafka-ha-policy@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
   ssh -p $ssh_port $ip "sed 's@COMPONENT_INSTALL_DIR_NAME=@COMPONENT_INSTALL_DIR_NAME=/opt/bitnami/kafka/@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
+
   #此entrypoint.sh加入了插件安装脚本
-  scp -P $ssh_port $installpath/bin/kafka-internal/entrypoint.sh $ip:$BASE_PATH/kafka/bin/
+  # jmx配置
+  scp -r -P $ssh_port $installpath/bin/kafka-internal/ $ip:$BASE_PATH/kafka/bin/
+  ssh -p $ssh_port $ip "sed 's@--IP--@$ip@g' -i $BASE_PATH/kafka/bin/kafka-internal/jmx/management.properties"
 
   ## 启动kafka 
   print_log info "开始启动$ip 的kafka"
@@ -52,18 +55,17 @@ docker run --name kafka -d --restart=unless-stopped \\
            -e KAFKA_CFG_SUPER_USERS=User:admin \\
            -e KAFKA_CFG_AUTHORIZER_CLASS_NAME=org.apache.ranger.authorization.kafka.authorizer.RangerKafkaAuthorizer \\
            -e KAFKA_CFG_ZOOKEEPER_CONNECT=${ZOO_SERVERS} \\
-           -e KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \\
-           -e KAFKA_CFG_LISTENERS=CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \\
-           -e KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT \\
-           -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT \\
+           -e KAFKA_CFG_ADVERTISED_LISTENERS=BROKER://${ip}:${kafka_port_broker},CLIENT://${ip}:${kafka_port},EXTERNAL://${servers[$ip]}:${kafka_port_outside} \\
+           -e KAFKA_CFG_LISTENERS=BROKER://0.0.0.0:${kafka_port_broker},CLIENT://0.0.0.0:${kafka_port},EXTERNAL://0.0.0.0:${kafka_port_outside} \\
+           -e KAFKA_CFG_INTER_BROKER_LISTENER_NAME=BROKER \\
+           -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=BROKER:SASL_PLAINTEXT,CLIENT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT \\
            -e KAFKA_CFG_SASL_ENABLED_MECHANISMS=PLAIN \\
            -e JMX_PORT="9999" \\
            -e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \\
            -e KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \\
            -e KAFKA_CFG_MAX_PARTITION_FETCH_BYTES=10485760 \\
            -e KAFKA_CFG_MAX_REQUEST_SIZE=10485760 \\
-           -e KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT \\
-           -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.rmi.port=9999 -Djava.rmi.server.hostname=${ip} -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false" \\
+           -e KAFKA_INTER_BROKER_LISTENER_NAME=BROKER \\
            -e KAFKA_ZOOKEEPER_PROTOCOL=SASL \\
            -e KAFKA_ZOOKEEPER_USER=admin \\
            -e KAFKA_ZOOKEEPER_PASSWORD=${admin_user_pwd} \\
@@ -72,9 +74,9 @@ docker run --name kafka -d --restart=unless-stopped \\
               -e KAFKA_CFG_AUTHZ_RANGER_HOST=${ranger_host} \\
               -v $BASE_PATH/kafka/libs/plugin-auth-1.0.jar:/opt/bitnami/kafka/libs/plugin-auth-1.0.jar \\
               -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ranger.RangerAuthenticateCallbackHandler \\
-              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ranger.RangerAuthenticateCallbackHandler \\
+              -e KAFKA_CFG_LISTENER_NAME_CLIENT_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS=ranger.RangerAuthenticateCallbackHandler \\
               -e KAFKA_CFG_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
-              -e KAFKA_CFG_LISTENER_NAME_PLAINTEXT_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
+              -e KAFKA_CFG_LISTENER_NAME_CLIENT_PLAIN_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required ;' \\
            -e KAFKA_CFG_ADVERTISED_HOST_NAME=${ip} \\
            -e KAFKA_CFG_LOG_RETENTION_HOURS=${kafka_msg_storage_hours} \\
            -e KAFKA_CFG_LOG_CLEANUP_POLICY=delete \\
@@ -82,9 +84,12 @@ docker run --name kafka -d --restart=unless-stopped \\
            -v ${DATA_DIR}/kafka:/bitnami/kafka \\
            -v ${BASE_PATH}/kafka/libs/ranger-kafka-plugin:/opt/ranger-kafka-plugin \\
            -u root \\
-           -v ${BASE_PATH}/kafka/bin/entrypoint.sh:/opt/bitnami/scripts/kafka/entrypoint.sh \\
+           -v ${BASE_PATH}/kafka/bin/kafka-internal/entrypoint.sh:/opt/bitnami/scripts/kafka/entrypoint.sh \\
+           -v ${BASE_PATH}/kafka/bin/kafka-internal/jmx:/opt/bitnami/kafka/bin/kafka-internal/jmx \\
             bitnami/kafka:3.9.0
             # 调试时用：  -e KAFKA_DEBUG=TRUE -e JAVA_DEBUG_PORT=0.0.0.0:5555 \\
+            # 开启jmx: -e KAFKA_JMX_OPTS="-Dcom.sun.management.config.file=/opt/bitnami/kafka/bin/kafka-internal/jmx/management.properties" \\
+            # java.rmi.ConnectException: Connection refused to host: 127.0.2.1; nested exception
 EOF
   chmod +x /tmp/run.sh
   scp -P $ssh_port /tmp/run.sh $ip:$BASE_PATH/kafka/

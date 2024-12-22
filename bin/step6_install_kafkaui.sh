@@ -22,6 +22,7 @@ function install_kafkaui(){
   [[ -f "$installpath/packages/${KAFKAUI_FILE_NAME}" ]] && ssh -p $ssh_port $kafkaui_host "gunzip -c $BASE_PATH/kafkaui/${KAFKAUI_FILE_NAME} | docker load"
   [[ -f "$installpath/packages/${KAFKAUI_FILE_NAME}" ]] && ssh -p $ssh_port $kafkaui_host "rm -rf $BASE_PATH/kafkaui/${KAFKAUI_FILE_NAME}"
 
+  broker_list=`echo "${!servers[@]}"| sed "s# #:$kafka_port,#g" | sed "s#\\$#:$kafka_port#g"`
   cat > /tmp/run.sh <<EOF
 docker stop kafkaui
 docker rm kafkaui
@@ -29,9 +30,14 @@ docker run --name kafkaui --restart=always \\
 -p 8080:8080 \\
 -e TZ=Asia/Shanghai \\
 -e AUTH_TYPE=LOGIN_FORM \\
-        -e SPRING_SECURITY_USER_NAME=admin \\
+      -e SPRING_SECURITY_USER_NAME=admin \\
       -e SPRING_SECURITY_USER_PASSWORD=$kafkaui_pwd \\
       -e DYNAMIC_CONFIG_ENABLED=true \\
+      -e KAFKA_CLUSTERS_0_NAME=kafka-ha \\
+      -e KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=$broker_list \\
+      -e KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL=SASL_PLAINTEXT \\
+      -e KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM=PLAIN \\
+      -e KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="${ranger_admin_pwd}";' \\
 -d provectuslabs/kafka-ui
 echo "已提交了启动任务，马上进行日志查看，若启动完成或失败后，请ctrl+c退出"
 sleep 2
@@ -43,4 +49,4 @@ chmod +x /tmp/run.sh
 }
 
 install_kafkaui
-print_log info "################# kafkaui已安装启动,并已新建好ranger数据库 #################"
+print_log info "kafkaui已安装启动,访问地址：http://$kafkaui_host:8080, 用户名/密码：admin/$kafkaui_pwd #################"
