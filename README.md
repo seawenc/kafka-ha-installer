@@ -227,12 +227,11 @@ sed -i 's/\r$//' conf/*.sh
 ```
 **若容器内部无法访问宿主机ip，则需要开启网络策略，以ufw指令为例：** `sudo ufw allow from 192.168.255.0/24`
 
-### 3.4.2. ranger-kafka配置
+#### 3.4.2. ranger-kafka配置
 <span style="color:red">**非常重要:**</span>，因为kafka将使用ranger进行认证与授权，因此在安装kafka前，需要提前配置ranger： 
-#### 登录ranger
-访问ranger web-ui，默认地址：http://192.168.56.10:6080/login.jsp
+* 1、登录ranger: 访问ranger web-ui，默认地址：http://192.168.56.10:6080/login.jsp
+* 2、新建策略
 
-#### 新建策略
 | 属性名            | 属性值示例             | 示例                          |
 |:---------------|:------------------|:----------------------------|
 | `Service Name` | `kafka-ha-policy` | 策略名称，固定为此值，不可修改             |
@@ -245,20 +244,20 @@ sed -i 's/\r$//' conf/*.sh
 | `sasl.jaas.config` | `org.apache.kafka.common.security.plain.PlainLoginModule required username="" password="";`      | 固定值，其中的用户名密码将在运行时填充为上面的配置的值 |
 
 ![ranger-setting1.jpg](images/ranger-setting1.jpg)  
-进入策略新建：  
+* 3、进入策略新建：  
 ![ranger-setting2.jpg](images/ranger-setting2.jpg)
+> 配置完成后，点击`add`保存  
 
-配置完成后，点击`add`保存  
-然后进入此策略，删除默认的权限：    
+* 4、删除默认策略
+> 然后进入此策略，删除默认的权限：    
 ![ranger-setting4.jpg](images/ranger-setting4.jpg)
 
-完成后，再**继续安装zookeeper与kafka**， kafka安装完成后，进入策略，测试此策略是否可用 
-![ranger-setting3.jpg](images/ranger-setting3.jpg)
-
-点击最下面的`test Connection`,若提示`Connection Successful!`，则表示配置成功
+* 5、验证配置  
+> 完成后，先**继续安装zookeeper与kafka**， <span style="color:red">kafka安装完成后，进入策略，测试此策略是否可用</span>   
+![ranger-setting3.jpg](images/ranger-setting3.jpg)  
+> 点击最下面的`test Connection`,若提示`Connection Successful!`，则表示配置成功
 
 #### 4. zookeeper+kafka安装
-
 ```bash
 # 步骤4：安装zookeeper
 sh bin/step4_install_zk.sh
@@ -284,9 +283,9 @@ kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:90
 
 **若参接收到，则安装成功**
 
-登录efak，查看kafka状态
-http://192.168.56.11:8048/
-默认用户名密码：admin/123456 (**请及时修改密码**)
+登录kafkaui，查看kafka状态
+http://192.168.56.10:8080/
+默认用户名密码：admin/{密码请查看配置文件}
 
 ## 4.连接方式
 
@@ -302,7 +301,7 @@ http://192.168.56.11:8048/
 * security -> type = `SASL Plaintext`  
 * Advanced -> Bootstrap servers= `192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092`  
 * Advanced -> SASL Mechanism= `PLAIN`  
-* JAAS Config-> `org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="aaBB1122";`  
+* JAAS Config-> `org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="密码";`  
 
 配置完成后，点击`connect`  
 
@@ -342,7 +341,7 @@ public class KafkaHelper {
         properties.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
-        properties.setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"aaBB1122\";");
+        properties.setProperty("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"密码\";");
 //        properties.setProperty("sasl.mechanism", "SCRAM-SHA-256");
         properties.setProperty("sasl.mechanism", "PLAIN");
         properties.setProperty("security.protocol", "SASL_PLAINTEXT");
