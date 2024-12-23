@@ -104,15 +104,15 @@ docker pull seawenc/ranger:2.5.0.2
 docker pull bitnami/zookeeper:3.6.3
 # 此鏡像制作參考：dockerfile/Dockerfile.kafka
 docker pull bitnami/kafka:3.9.0
-docker pull seawenc/efak:3.0.6
+docker pull provectuslabs/kafka-ui
 docker save mysql | gzip > mysql.gz
 docker save seawenc/ranger:2.5.0.2 | gzip > ranger.gz
 docker save bitnami/zookeeper:3.6.3 | gzip > zk.gz
 docker save bitnami/kafka:3.9.0 | gzip > kafka.gz
-docker save seawenc/efak:3.0.6 | gzip > efak.gz
+docker save provectuslabs/kafka-ui | gzip > kafka-ui.gz
 
 ```
-> 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（zk.gz、kafka.gz、efak.gz、docker-${DOCKER_VERSION}.tgz,mysql.gz） 
+> 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（zk.gz、kafka.gz、ranger.gz、docker-${DOCKER_VERSION}.tgz,mysql.gz） 
 
 
 ### 3.2.目录文件说明
@@ -125,15 +125,15 @@ docker save seawenc/efak:3.0.6 | gzip > efak.gz
 │   ├── step3_install_ranger.sh            : 一键安装ranger
 │   ├── step4_install_zk.sh                :一键安装zookeeper
 │   ├── step5_install_kafka.sh             :一键安装kafka
-│   ├── step6_install_efak.sh              :一键安装efak(监控工具)
-│   ├── stop_efak.sh                       :一键停止efak(监控工具)
+│   ├── step6_install_kafkaui.sh              :一键安装kafkaui(监控工具)
+│   ├── stop_kafkaui.sh                       :一键停止kafkaui(监控工具)
 │   ├── stop_kafka.sh                      :一键停止所有节点的kafka
 │   ├── stop_zk.sh                         :一键停止所有节点的zookeeper
 │   ├── stop_mysql.sh                      :一键停止mysql
 │   ├── stop_ranger.sh                     :一键停止ranger
 │   ├── start_zk.sh                        :一键启动所有节点的zookeeper
 │   ├── start_kafka.sh                     :一键启动所有节点的kafka
-│   ├── start_efak.sh                      :一键启动efak
+│   ├── start_kafkaui.sh                      :一键启动kafkaui
 │   ├── check_kafka.sh                     :一键检查所有节点kafka状态
 │   ├── check_zk.sh                        :一键检查所有节点zookeeper状态
 │   └── clear_data.sh                      : 清空所有节点数据（调用请慎重）
@@ -143,7 +143,6 @@ docker save seawenc/efak:3.0.6 | gzip > efak.gz
 │   │    ├── daemon.json                   : docker核心配置文件
 │   │    └── docker.service                : docker服务文件
 │   ├── config.sh                          : 核心配置文件，具体配置项，请看下面介绍
-│   ├── efak.properties                    : 监控工具efak的配置文件，,默认使用本地数据库，建议使用外部mysql
 │   └── jaas.conf                          : jaas认证文件，若不用新加kafka用户，则可不用修改
 ├── docs                                   : 项目文档目录
 ├── plugin-auth                            : 权限插件
@@ -198,10 +197,16 @@ mysql_ranger_user=ranger
 # mysql ranger数据库密码,默认使用统一的管理员密码，请修改
 mysql_ranger_pwd=mysql@1122
 ##############################################################
+###################### kafkaui相关信息
+# 监控工具kafkaui安装在哪台服务器上,默认是排序后的第一台服务器，若想修改，请直接写死
+kafkaui_need_install=true
+# kafkaui安装在哪台服务器上，默认与mysql在同一台服务器，请修改
+kafkaui_host=$mysql_host
+# kafkaui的登录密码,默认使用统一的管理员密码，请修改
+kafkaui_pwd=$admin_user_pwd
 ```
-* 2.`conf/efak.properties`: 监控工具efak的配置文件，**可不用修改**
-* 3.`conf/jaas.conf`: jaas认证文件，若不用新加kafka用户，**则可不用修改**
-* 4.`conf/docker`: docker相关的配置，若无特殊需求，**则可不用修改**
+* 2.`conf/jaas.conf`: jaas认证文件，若不用新加kafka用户，**则可不用修改**
+* 3.`conf/docker`: docker相关的配置，若无特殊需求，**则可不用修改**
 
 ### 3.4.开始安装
 
@@ -217,7 +222,7 @@ sh bin/step2_install_mysql.sh
 sh bin/step3_install_ranger.sh
 ```
 > 0. 安装过程中，请仔细阅读每一行日志
-> 1. `kafka`,`zookeeper`,`efak`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
+> 1. `kafka`,`zookeeper`,`kafkaui`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
 > 2. 若安装过程中状态检查未通过，则请按提示查看日志，解决后继续
 
 **若执行脚本时报换行符的错(关键字包含：\r)，是因为你用window操作系统打开过，执行以下脚本修复:**
@@ -535,7 +540,7 @@ sh run.sh
 
 > 升级完成后，重启kafka可直接用安装节点的`start_kafka.sh`
 
-软升级完成，登录 efak验证kafka可用性
+软升级完成，登录 kafkaui验证kafka可用性
 
 
 

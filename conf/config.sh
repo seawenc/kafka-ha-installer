@@ -49,9 +49,4 @@ kafkaui_host=$mysql_host
 # kafkaui的登录密码,默认使用统一的管理员密码，请修改
 kafkaui_pwd=$admin_user_pwd
 
-###################### nginx相关信息
-# 监控工具efak安装在哪台服务器上,默认是排序后的第一台服务器，若想修改，请直接写死
-nginx_need_install=true
-nginx_domain="ada.com" # 基础域名，若使用默认配置,则ranger的域名为：ranger.ada.com, efak域名为：efak.ada.com
-nginx_port=80
 
