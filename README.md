@@ -264,7 +264,7 @@ sed -i 's/\r$//' conf/*.sh
 ![ranger-setting3.jpg](images/ranger-setting3.jpg)  
 > 点击最下面的`test Connection`,若提示`Connection Successful!`，则表示配置成功
 
-#### 4. zookeeper+kafka安装
+#### 3.4.3 zookeeper+kafka安装
 ```bash
 # 步骤4：安装zookeeper
 sh bin/step4_install_zk.sh
