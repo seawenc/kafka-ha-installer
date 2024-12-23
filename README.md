@@ -27,6 +27,7 @@ docker地址：<https://hub.docker.com/r/bitnami/kafka>
 > * 1.kafka使用ranger进行认证与鉴权
 > * 2.docker去掉版本限制
 > * 3.将efak切换为了更轻量的kafka-ui
+> * 4、关闭了kafka的jmx监控
 
 **v2.6.0**.2024-06-28
 
