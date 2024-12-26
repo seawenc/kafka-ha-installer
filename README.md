@@ -576,6 +576,19 @@ v1.x版本原始为非docker版本，现需要全部重新升级到docker版本
 
 此时新建好的用户就可以登录，但是没有任何权限
 
+### 5.4、docker报错：permission denied   
+首次发现在kylin系统中，报以下错误
+```properties
+failed to create shim task: OCI runtime create failed: container_linux.go:318: starting container process caused "permission denied": unknown
+```
+
+原因： Kylin有个自带的podman容器工具，与docker容器冲突了  
+
+解决办法：  
+```bash
+yum remove podman
+```
+
 #### 设置策略
 
 在首页，点击`kafka-ha-policy` -> `Add New Policy`:  
