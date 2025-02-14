@@ -27,6 +27,7 @@ docker地址：<https://hub.docker.com/r/bitnami/kafka>
 > * 1.kafka使用ranger进行认证与鉴权
 > * 2.docker去掉版本限制
 > * 3.将efak切换为了更轻量的kafka-ui
+> * 4、关闭了kafka的jmx监控
 
 **v2.6.0**.2024-06-28
 
@@ -263,7 +264,7 @@ sed -i 's/\r$//' conf/*.sh
 ![ranger-setting3.jpg](images/ranger-setting3.jpg)  
 > 点击最下面的`test Connection`,若提示`Connection Successful!`，则表示配置成功
 
-#### 4. zookeeper+kafka安装
+#### 3.4.3 zookeeper+kafka安装
 ```bash
 # 步骤4：安装zookeeper
 sh bin/step4_install_zk.sh
@@ -588,6 +589,19 @@ v1.x版本原始为非docker版本，现需要全部重新升级到docker版本
 ![ranger-add-user.jpg](images/ranger-add-user.jpg)
 
 此时新建好的用户就可以登录，但是没有任何权限
+
+### 5.4、docker报错：permission denied   
+首次发现在kylin系统中，报以下错误
+```properties
+failed to create shim task: OCI runtime create failed: container_linux.go:318: starting container process caused "permission denied": unknown
+```
+
+原因： Kylin有个自带的podman容器工具，与docker容器冲突了  
+
+解决办法：  
+```bash
+yum remove podman
+```
 
 #### 设置策略
 
