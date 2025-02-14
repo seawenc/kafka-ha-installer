@@ -594,7 +594,7 @@ v1.x版本原始为非docker版本，现需要全部重新升级到docker版本
 在首页，点击`kafka-ha-policy` -> `Add New Policy`:  
 设置`kafka`这个用户只能读写topic:`test-kafka-show`,并且读时只能使用`test-group`这一个group,下关配置如下图  
 ![kafka-ranger-add-policy.jpg](images/kafka-ranger-add-policy.jpg)  
-
+  
 **<span style="color:red">注意：</span>** group策略与自动生成的策略：`all - consumergroup`**策略冲突**，若需要group控制生效，则需要删除默认策略中的 `select group`-> `public`然后保存
  
 ### 5.4、为何kafka的topic或group控制策略不生效？
