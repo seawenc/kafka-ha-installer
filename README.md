@@ -455,7 +455,7 @@ kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --lis
 * 1、账号多次失败后被锁定，可以在ranger中查看日志  
 * 2、admin账号安装时默认为弱密码，需要修复密码为强密码  
 
-### 5.2、使用ranger账号登录kafka失败
+### 5.4、使用ranger账号登录kafka失败
 在3.0x版本中，如果使用了ranger账号登录kafka，当确认账号密码是正确的，仍然不能登录时，可能是由于之前输入了错误的密码，导致账号被锁定了，等待一段时间后恢复，或换新账号
 可以登录ranger中查看日志
 ```bash
@@ -465,11 +465,25 @@ kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --lis
 2024-12-20 03:21:25,783 [http-nio-6080-exec-12] INFO [SpringEventListener.java:109] Login Unsuccessful:kafka | Ip Address:192.168.56.1 | User account is locked
 ```
 
-### 5.2、kafka离线升级
+### 5.5、查看kafka日志有报错：用户不存在
+```bash
+[2025-02-14 02:08:31,042] WARN unable to return groups for user aic (org.apache.hadoop.security.ShellBasedUnixGroupsMapping)
+PartialGroupNameException The user name 'user1' is not found. id: 'user1': no such user
+id: 'user1': no such user
+
+        at org.apache.hadoop.security.ShellBasedUnixGroupsMapping.resolvePartialGroupNames(ShellBasedUnixGroupsMapping.java:294)
+        at org.apache.hadoop.security.ShellBasedUnixGroupsMapping.getUnixGroups(ShellBasedUnixGroupsMapping.java:207)
+        at org.apache.hadoop.security.ShellBasedUnixGroupsMapping.getGroups(ShellBasedUnixGroupsMapping.java:97)
+...
+```
+为正常现象，可以忽略
+
+
+### 5.6、kafka离线升级
 
 提供两种升级方式，以下以2.8.1升级到2.8.2为例：
 
-#### 5.2.1、硬升级
+#### 5.6.1、硬升级
 
 但是现在bitnami/kafka还没有2.8.2版本，因此下面的升级脚本不可行，需要等待官方升级才可用此方式
 
@@ -509,7 +523,7 @@ sh bin/start_kafka.sh
 ```
 
 
-#### 5.2.2、软升级
+#### 5.6.2、软升级
 
 若可硬升级，则用硬升级，若不能硬升级，再用此法
 
@@ -561,13 +575,13 @@ sh run.sh
 > 回滚完成后，重启kafka可直接用安装节点的`start_kafka.sh`
 
 
-#### 5.2.3、v1.x脚本升级到v2.x  
+#### 5.6.3、v1.x脚本升级到v2.x  
 
 v1.x版本原始为非docker版本，现需要全部重新升级到docker版本  
 经验证：升级后，数据无法读取，原因为原来的zookeeper是非加密的，新版本的是加了密码的，新版本读取不到topic的元数据信息
 
 
-### 5.3、添加一个kafka账号，并赋权
+### 5.7、添加一个kafka账号，并赋权
 
 #### 新建用户
 登录ranger,新建一个`kafka`用户`settings`-> `Users` -> `Add New User`：  
@@ -589,7 +603,7 @@ v1.x版本原始为非docker版本，现需要全部重新升级到docker版本
 * group的默认策略： `all - consumergroup`
 
 
-## 7.安全
+## 8.安全
 
 ### 开启防火墙
 例如，个别端口指定服务器可防问，以iptables为例：
