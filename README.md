@@ -616,6 +616,9 @@ yum remove podman
 * topic的默认策略： `all - topic`
 * group的默认策略： `all - consumergroup`
 
+### 5.8、kafka不稳定，经常报超时
+原因：不知  
+解决办法: 重启服务器
 
 ## 8.安全
 
