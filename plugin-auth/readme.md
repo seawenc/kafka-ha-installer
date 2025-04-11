@@ -7,3 +7,6 @@
 > * 1、直接从官方代码出的包少了两个jar包(commons-compress-1.26.2.jar,commons-lang3-3.9.jar)，需要放到此压缩包的`install/lib`下
 > * 2、解决了几个ranger存在的bug，替换了其中的`ranger-kafka-plugin-2.5.0.jar`，`ranger-plugins-common-2.5.0.jar`，原码在`git@github.com:seawenc/ranger.git`中的`release-ranger-2.5.0-cqrd-fix`分支
 > * 3、删除了elasticsearch、solr相关的依赖，若要开启审计，请自行添加此包
+
+## 打包：
+gradle 7.5执行：gradle shadowJar

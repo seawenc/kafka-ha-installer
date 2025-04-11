@@ -1,6 +1,9 @@
 deploy/*
 */target/*
 */build/*
+plugin-auth/.gradle
+plugin-auth/build
+plugin-auth/.idea
 packages/*.gz
 packages/*.tgz
 *.iml

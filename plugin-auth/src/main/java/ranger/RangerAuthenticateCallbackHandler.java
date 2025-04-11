@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.security.auth.callback.Callback;
@@ -26,6 +27,8 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
 
     private String host ="";
     private int port = 6080;
+
+    private Map<String,String> accounts=new HashMap<>();
 
     @Override
     public void configure(final Map<String, ?> configs, final String saslMechanism, final List<AppConfigurationEntry> jaasConfigEntries) {
@@ -94,6 +97,12 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
         }
         String password=new String(plainAuthenticateCallback.password());
 
+        if (accounts.containsKey(username) && password.equals(accounts.get(username))) {
+            LOG.info("user: \"" + username + "\" login success(use cache!!).");
+            plainAuthenticateCallback.authenticated(true);
+            return;
+        }
+
         boolean authenticated=false;
         try {
             authenticated = authenticate(username, password);
@@ -102,6 +111,7 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
         }
         if (authenticated) {
             LOG.info("user: \"" + username + "\" login success.");
+            accounts.put(username,password);
         } else {
             LOG.warn("user:  \"" + username + "\" login "+String.format("http://%s:%s/login",host,port)+" fail.");
         }
