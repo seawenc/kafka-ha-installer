@@ -21,20 +21,21 @@ kafka_port_broker=9091
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
 # admin账号密码，此密码将使用在zookeeper,及ranger,mysql的默认密码（请修改）
+# 将作为zookeeper，kafka，ranger的默认密码，必须包含小写、大写、数字、特殊字符，最小8位
 admin_user_pwd=aaBB@1122
 
 ###################### mysql 数据库信息
 ## 是否需要安装，如果已有mysql,则可修改为false,下面mysql的其它参数改为现有的数据库信息，如果需要安装，则为新库信息
 mysql_need_install=true
-mysql_host=192.168.56.10
+mysql_host=192.168.56.11
 mysql_port=3306
 # 请修改默认密码
 mysql_root_pwd=$admin_user_pwd
 
 ###################### ranger 相关信息，必需安装，所需数据库为：mysql_host
-ranger_host=192.168.56.10
-# 必须包含大小写特殊字符及数字, 否则将无法登录ranger的web-ui,
-ranger_admin_pwd=Ranger@1122
+ranger_host=192.168.56.11
+# 必须跟admin_user_pwd密码一致
+ranger_admin_pwd=$admin_user_pwd
 # ranger数据库信息，如果mysql_need_install=true，则自动新建，否则需要提前创建
 mysql_ranger_dbname=ranger
 mysql_ranger_user=ranger

@@ -1,6 +1,8 @@
 deploy/*
 */target/*
 */build/*
+packages/*.gz
+packages/*.tgz
 *.iml
 .idea
 

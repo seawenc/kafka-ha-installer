@@ -35,6 +35,7 @@ do
   ssh -p $ssh_port $ip "sed 's@POLICY_MGR_URL=@POLICY_MGR_URL=http://${ranger_host}:6080@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
   ssh -p $ssh_port $ip "sed 's@REPOSITORY_NAME=@REPOSITORY_NAME=kafka-ha-policy@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
   ssh -p $ssh_port $ip "sed 's@COMPONENT_INSTALL_DIR_NAME=@COMPONENT_INSTALL_DIR_NAME=/opt/bitnami/kafka/@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
+  ssh -p $ssh_port $ip "chmod 777 -R $BASE_PATH/kafka"
 
   #此entrypoint.sh加入了插件安装脚本
   # jmx配置
@@ -60,7 +61,6 @@ docker run --name kafka -d --restart=unless-stopped \\
            -e KAFKA_CFG_INTER_BROKER_LISTENER_NAME=BROKER \\
            -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=BROKER:SASL_PLAINTEXT,CLIENT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT \\
            -e KAFKA_CFG_SASL_ENABLED_MECHANISMS=PLAIN \\
-           -e JMX_PORT="9999" \\
            -e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \\
            -e KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN \\
            -e KAFKA_CFG_MAX_PARTITION_FETCH_BYTES=10485760 \\
@@ -99,6 +99,7 @@ EOF
   # 将用户名与密码，写到文件，不然指令无法使用
   ssh -p $ssh_port $ip "docker exec kafka sh -c \"sed 's/username=\\\"user\\\" password=\\\"bitnami\\\"/username=\\\"admin\\\" password=\\\"${ranger_admin_pwd}\\\"/g' -i /opt/bitnami/kafka/config/producer.properties\""
   ssh -p $ssh_port $ip "docker exec kafka sh -c \"sed 's/username=\\\"user\\\" password=\\\"bitnami\\\"/username=\\\"admin\\\" password=\\\"${ranger_admin_pwd}\\\"/g' -i /opt/bitnami/kafka/config/consumer.properties\""
+  ssh -p $ssh_port $ip "docker exec kafka useradd admin"
   #ssh -p $ssh_port $ip "cat $BASE_PATH/kafka/run.sh"
   let FOR_SEQ+=1 
   print_log info "查看日志："
