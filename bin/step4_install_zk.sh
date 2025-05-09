@@ -43,7 +43,7 @@ do
            -e ZOO_ENABLE_AUTH=yes \
            -e ZOO_SERVER_USERS=\"admin\" \
            -e ZOO_SERVER_PASSWORDS=\"${admin_user_pwd}\" \
-           -e ZOO_CLIENT_USER=${admin} \
+           -e ZOO_CLIENT_USER=\"admin\" \
            -e ZOO_CLIENT_PASSWORD=${admin_user_pwd} \
            -e JVMFLAGS=\"-Dzookeeper.electionPortBindRetry=50\" \
            -e ZOO_SERVERS=\"${ZOO_SERVERS}\" \
