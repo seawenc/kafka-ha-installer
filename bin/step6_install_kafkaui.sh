@@ -34,6 +34,7 @@ docker run --name kafkaui --restart=always \\
       -e SPRING_SECURITY_USER_PASSWORD=$kafkaui_pwd \\
       -e DYNAMIC_CONFIG_ENABLED=true \\
       -e KAFKA_CLUSTERS_0_NAME=kafka-ha \\
+      --ulimit nofile=65536:65536 \\
       -e KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=$broker_list \\
       -e KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL=SASL_PLAINTEXT \\
       -e KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM=PLAIN \\

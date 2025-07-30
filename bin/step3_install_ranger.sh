@@ -36,6 +36,7 @@ function install_ranger(){
        --net=host --hostname=ranger \\
       -v $BASE_PATH/ranger/install.properties:/opt/app/ranger-admin/install.properties \\
       -v $BASE_PATH/ranger/ranger-kafka-plugin-2.5.0.jar:/opt/app/ranger-admin/ews/webapp/WEB-INF/classes/ranger-plugins/kafka/ranger-kafka-plugin-2.5.0.jar \\
+      --ulimit nofile=65536:65536 \\
       dockeropen.x/bigdata/ranger:2.5.0.2
   docker logs -f ranger
 EOF
