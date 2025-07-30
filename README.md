@@ -294,6 +294,10 @@ kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:90
 http://192.168.56.10:8080/
 默认用户名密码：admin/{密码请查看配置文件}
 
+![kafkaui.png](images/kafkaui.png)
+
+可以在ui界面上新建topic，调整
+
 ## 4.连接方式
 
 ### 4.1.kafkatool工具连接
