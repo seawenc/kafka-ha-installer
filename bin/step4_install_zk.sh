@@ -39,6 +39,7 @@ do
            -v $DATA_DIR/zookeeper:/bitnami/zookeeper \
            -e ZOO_SERVER_ID=${FOR_SEQ} \
            -e ZOO_LISTEN_ALLIPS_ENABLED=yes \
+           - -e ZOO_ENABLE_ADMIN_SERVER=no \
            -e ALLOW_ANONYMOUS_LOGIN=no \
            -e ZOO_ENABLE_AUTH=yes \
            -e ZOO_SERVER_USERS=\"admin\" \
