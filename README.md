@@ -626,6 +626,20 @@ failed to create shim task: OCI runtime create failed: container_linux.go:318: s
 yum remove podman
 ```
 
+### 5.10、启动mysql报错  
+首次发现在kylin系统中，报以下错误
+```properties
+Fatal glibc error: CPU does not support x86-64-v2
+```
+
+原因： Kylin核心不支持x86-64-v2
+
+解决办法：
+```bash
+使用这个镜像
+docker pull mysql:8.0.36-debian
+```
+
 ## 8.安全
 
 ### 开启防火墙
