@@ -12,7 +12,7 @@ kafkaui_host=`[ "$kafkaui_need_install" = "true" ] && echo "$kafkaui_host" || ec
 [ -z $kafkaui_host ] && print_log info "kafkaui未启动安装，退出，若需要安装，请设置 kafkaui_host_need_install=true" && exit 0
 
 # 获取docker镜像包名称
-KAFKAUI_FILE_NAME=`ls $installpath/packages/ | grep kafkaui | grep gz`
+KAFKAUI_FILE_NAME="kafkaui"
 [ -z $KAFKAUI_FILE_NAME ] && print_log warn "kafkaui无离线安装包，将进行在线镜像拉取，请确保能访问外网，若需要离线安装，请参考readme.md,手动下载kafkaui安装包，放到packages目录" && sleep 3
 
 print_log info "################# 安装与启动kafkaui #################"

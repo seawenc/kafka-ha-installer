@@ -22,6 +22,11 @@ docker地址：<https://hub.docker.com/r/bitnami/kafka>
 
 ## 2.版本更新记录
 
+**v3.1.0**.2025-12-16
+
+> * 1.解决zookeeper漏洞,版本升级到3.9.4
+> * 2.mysql默认安装地址与ranger一致，并**去掉对外暴露的端口**，解决安全问题
+
 **v3.0.0**.2024-12-22
 
 > * 1.kafka使用ranger进行认证与鉴权
@@ -109,13 +114,12 @@ docker pull bitnami/kafka:3.9.0
 docker pull provectuslabs/kafka-ui
 docker save mysql | gzip > mysql.gz
 docker save seawenc/ranger:2.5.0.2 | gzip > ranger.gz
-docker save bitnami/zookeeper:3.6.3 | gzip > zk.gz
+docker save dockeropen.x/bitnami/zookeeper:3.9.4 | gzip > zk.gz
 docker save bitnami/kafka:3.9.0 | gzip > kafka.gz
 docker save provectuslabs/kafka-ui | gzip > kafka-ui.gz
-
 ```
 > 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（zk.gz、kafka.gz、ranger.gz、docker-${DOCKER_VERSION}.tgz,mysql.gz） 
-
+>  zookeeper镜像为自已制作，参考[zookeer升级](docs/upgrade/zookeeper)
 
 ### 3.2.目录文件说明
 ```
@@ -639,6 +643,10 @@ Fatal glibc error: CPU does not support x86-64-v2
 使用这个镜像
 docker pull mysql:8.0.36-debian
 ```
+
+### 5.11、zookeeper升级
+
+参考：[zookeeper升级](docs/upgrade/zookeeper)
 
 ## 8.安全
 

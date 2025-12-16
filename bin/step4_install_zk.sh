@@ -39,7 +39,7 @@ do
            -v $DATA_DIR/zookeeper:/bitnami/zookeeper \
            -e ZOO_SERVER_ID=${FOR_SEQ} \
            -e ZOO_LISTEN_ALLIPS_ENABLED=yes \
-           - -e ZOO_ENABLE_ADMIN_SERVER=no \
+           -e ZOO_ENABLE_ADMIN_SERVER=no \
            -e ALLOW_ANONYMOUS_LOGIN=no \
            -e ZOO_ENABLE_AUTH=yes \
            -e ZOO_SERVER_USERS=\"admin\" \
@@ -48,7 +48,7 @@ do
            -e ZOO_CLIENT_PASSWORD=${admin_user_pwd} \
            -e JVMFLAGS=\"-Dzookeeper.electionPortBindRetry=50\" \
            -e ZOO_SERVERS=\"${ZOO_SERVERS}\" \
-            bitnami/zookeeper:3.6.3' >> $BASE_PATH/zookeeper/run.sh"
+            dockeropen.x/bitnami/zookeeper:3.9.4' >> $BASE_PATH/zookeeper/run.sh"
   ssh -p $ssh_port $ip "chmod +x $BASE_PATH/zookeeper/run.sh"
   ssh -p $ssh_port $ip "sh $BASE_PATH/zookeeper/run.sh"
   let FOR_SEQ+=1

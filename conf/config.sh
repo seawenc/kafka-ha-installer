@@ -27,6 +27,7 @@ admin_user_pwd=aaBB@1122
 ###################### mysql 数据库信息
 ## 是否需要安装，如果已有mysql,则可修改为false,下面mysql的其它参数改为现有的数据库信息，如果需要安装，则为新库信息
 mysql_need_install=true
+# ！！！如果mysql_need_install=true,则自动安装mysql，ip与ranger_host一致，！！！这里配置mysql_host将无效
 mysql_host=192.168.56.11
 mysql_port=3306
 # 请修改默认密码

@@ -7,10 +7,11 @@ sh $installpath/bin/check_mysql.sh
 ## 如果 mysql已安装，则退出
 [ $? -eq 1 ] && exit 0
 
-MYSQL_HOST=`[ "$mysql_need_install" = "true" ] && echo "$mysql_host" || echo ''`
+# mysql必须与ranger装在同一台机器上，这样可以不暴露端口给外部访问，解决mysql漏洞问题
+MYSQL_HOST=`[ "$mysql_need_install" = "true" ] && echo "$ranger_host" || echo ''`
 
 # 判断变更$MYSQL_HOST 是否为空，若为空，则退出
-[ -z $MYSQL_HOST ] && print_log info "mysql未启动安装，退出，若需要安装，请设置 mysql_need_install=true" && exit 0
+[ "$mysql_need_install" = "false" ] && print_log info "mysql未启动安装，退出，若需要安装，请设置 mysql_need_install=true" && exit 0
 
 # 获取docker镜像包名称
 MYSQL_FILE_NAME=`ls $installpath/packages/ | grep mysql | grep gz`
@@ -27,7 +28,6 @@ function install_mysql(){
 docker stop mysql
 docker rm mysql
 docker run --name mysql --restart=always \\
--p ${mysql_port}:3306 \\
 -e MYSQL_ROOT_PASSWORD=${mysql_root_pwd} \\
 -e TZ=Asia/Shanghai \\
 -e MYSQL_DATABASE=$mysql_ranger_dbname \\
