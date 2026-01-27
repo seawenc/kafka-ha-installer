@@ -630,6 +630,10 @@ failed to create shim task: OCI runtime create failed: container_linux.go:318: s
 yum remove podman
 ```
 
+### 5.10、在openEuler无法启动mysql
+
+原因是普通mysql镜像跟操作系统不兼容，需要使用镜像：`mysql:8.0.36-debian`
+
 ### 5.10、启动mysql报错  
 首次发现在kylin系统中，报以下错误
 ```properties

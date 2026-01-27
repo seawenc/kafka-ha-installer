@@ -24,6 +24,8 @@ function install_mysql(){
   [[ -f "$installpath/packages/${MYSQL_FILE_NAME}" ]] && ssh -p $ssh_port $MYSQL_HOST "gunzip -c $BASE_PATH/mysql/${MYSQL_FILE_NAME} | docker load"
   [[ -f "$installpath/packages/${MYSQL_FILE_NAME}" ]] && ssh -p $ssh_port $MYSQL_HOST "rm -rf $BASE_PATH/mysql/${MYSQL_FILE_NAME}"
 
+print_log warn "如果当前操作系统为国产操作系统，如Kylin,openEuler，则必须使用镜像：mysql:8.0.36-debian，请手动修复"
+
   cat > /tmp/run.sh <<EOF
 docker stop mysql
 docker rm mysql
