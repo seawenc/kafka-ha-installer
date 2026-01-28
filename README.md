@@ -3,7 +3,10 @@
 ## 0.整体架构  
 ![framework.jpg](images/framework.jpg)  
 ## 1.说明
-本方案，需要至少4台服务器，每台服务器需要安装kafka与zookeeper，权限/与运维工具将安装在第一台，如果想要安装单机版本，[请点此查看方案](./docs/kafka-docker-single.md))  
+本方案，需要至少4台服务器，每台服务器需要安装kafka与zookeeper，权限/与运维工具将安装在第一台，如果想要安装单机版本,有以下两种方案：
+* [kafka3.x单机方案](./docs/kafka3.x-single-docker.md))
+* [kafka4.x单机方案](docs/kafka4.x-single-docker-compose.md)
+* 
 资源要求：4C/8g,`文件打开数`>=655350,文件打开数修改方式如下:  
 ```shell script
 sudo echo "* soft nofile 655350" >> /etc/security/limits.conf
@@ -21,6 +24,10 @@ docker地址：<https://hub.docker.com/r/bitnami/zookeeper>
 docker地址：<https://hub.docker.com/r/bitnami/kafka>
 
 ## 2.版本更新记录
+
+**v3.2.0**.2026-01-28
+
+> * 1.[新增4.x单机方案](docs/kafka4.x-single-docker-compose.md)
 
 **v3.1.0**.2025-12-16
 
@@ -684,11 +691,11 @@ ufw allow from 172.26.3.10
 ufw allow from 172.26.3.11
 ufw allow from 172.26.3.12
 
+ufw allow 9091/tcp
 ufw allow 9092/tcp
 ufw allow 9093/tcp
 ufw allow 6080/tcp
 ufw allow 8080/tcp
 
 ufw reload
-
 ```
