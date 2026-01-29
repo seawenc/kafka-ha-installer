@@ -45,11 +45,11 @@ do
 
   # 设置配置文件中的变量
   scp -r -P $ssh_port $installpath/conf/kafka/* $ip:$BASE_PATH/kafka/
-  ssh -p $ssh_port $ip "sed -i 's/_KAFKA_PWD_/${admin_user_pwd}/g' $BASE_PATH/kafka/conf/jaas.conf"
   
   ssh -p $ssh_port $ip "sed -i 's@_DATA_DIR_@${DATA_DIR}@g' $BASE_PATH/kafka/docker-compose.yml"
   ssh -p $ssh_port $ip "sed -i 's@_servers_@${CLIENT_SERVERS}@g' $BASE_PATH/kafka/docker-compose.yml"
   
+  ssh -p $ssh_port $ip "sed -i 's/_KAFKA_PWD_/${admin_user_pwd}/g' $BASE_PATH/kafka/conf/jaas.conf"
   ssh -p $ssh_port $ip "sed -i 's/_KAFKA_PWD_/${admin_user_pwd}/g' $BASE_PATH/kafka/conf/client.properties"
   ssh -p $ssh_port $ip "sed -i 's/_servers_/${CLIENT_SERVERS}/g' $BASE_PATH/kafka/conf/client.properties"
   
