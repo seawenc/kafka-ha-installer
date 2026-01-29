@@ -1,4 +1,4 @@
-# v2.一键安装安装使用指南
+# v3.一键安装安装使用指南
 
 ## 0.整体架构  
 ![framework.jpg](images/framework.jpg)  
