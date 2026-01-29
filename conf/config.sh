@@ -1,10 +1,10 @@
 ###############################0.参数配置##########################
 # 需果需要自动安装docker,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/
 
-# 基本路径，zookeeper与kafka都安装在此目录,请确保此目录有权限
-BASE_PATH=/opt/app/zkafka
+# 基本路径，与kafka都安装在此目录,请确保此目录有权限
+BASE_PATH=/opt/app/kafka-ha
 # 数据存放目录
-DATA_DIR=/opt/app/zkafka/data
+DATA_DIR=/opt/app/data
 ###################### kafka+zookeeper 相关配置
 # kafka地址,格式:  servers[内网地址]="外网地址" （如果没有网外地址，则与内网设置为一致）
 declare -A servers=()
@@ -12,16 +12,12 @@ servers["192.168.56.11"]="192.168.56.11"
 servers["192.168.56.12"]="192.168.56.12"
 servers["192.168.56.13"]="192.168.56.13"
 ssh_port=22
-# kafka内网端口号
-kafka_port=9093
-# kafka外网端口号
-kafka_port_outside=9092
-# broker节点之前的通信端口
-kafka_port_broker=9091
+# kafka内网端口号 v4 版本已写死，若需要修改，请手动修改docker-compose.yml，server.properties
+
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
-# admin账号密码，此密码将使用在zookeeper,及ranger,mysql的默认密码（请修改）
-# 将作为zookeeper，kafka，ranger的默认密码，必须包含小写、大写、数字、特殊字符，最小8位
+# admin账号密码，此密码将使用在及ranger,mysql的默认密码（请修改）
+# 将作为kafka，ranger的默认密码，必须包含小写、大写、数字、特殊字符，最小8位
 admin_user_pwd=aaBB@1122
 
 ###################### mysql 数据库信息

@@ -34,4 +34,3 @@ function ask()
     read TEMP_READ
     ask_result=$(echo $TEMP_READ | tr [a-z] [A-Z])
 }
-

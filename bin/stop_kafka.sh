@@ -6,7 +6,7 @@ function stop_kafka(){
 for ip in `echo ${!servers[*]} | tr " " "\n" | sort`
 do
   print_log warn "开始停止$ip 的kafka..."
-  ssh -p $ssh_port $ip "docker stop kafka "
+  ssh -p $ssh_port $ip "$BASE_PATH/kafka/stop.sh "
 done
 }
 stop_kafka

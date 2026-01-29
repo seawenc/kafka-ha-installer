@@ -1,0 +1,22 @@
+services:
+  kafka:
+    image: apache/kafka:4.1.1
+    container_name: kafka
+    hostname: kafka
+    ports:
+      - "9091:9091"
+      - "9092:9092"
+      - "9093:9093"
+    volumes:
+      - ./conf/server.properties:/opt/kafka/config/kafka.properties:ro
+      - ./conf/jaas.conf:/opt/kafka/config/jaas.conf:ro
+      - ./bin/kafka-start.sh:/opt/kafka/start.sh:ro
+      - ./conf/client.properties:/client.properties
+      - ./bin/check.sh:/check.sh
+      - ./bin/entrypoint.sh:/__cacert_entrypoint.sh:ro
+      - _DATA_DIR_/kafka:/data
+    environment:
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/jaas.conf"
+      PATH: "/opt/kafka/bin:/opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      SERVERS: "_servers_" #客户端用
+    command: ["/opt/kafka/start.sh"]

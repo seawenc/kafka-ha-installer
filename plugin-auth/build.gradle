@@ -16,7 +16,7 @@ buildscript {
 }
 
 ext{
-    kafkaVersion='3.9.0'
+    kafkaVersion='4.1.1'
     scalaVersion='2.13'
 }
 

@@ -256,7 +256,7 @@ sed -i 's/\r$//' conf/*.sh
 | `Username`     | `admin`           | 固定值                         |
 | `Password`     | `${web-ui的管理员密码}` |                             |
 | `Zookeeper Connect String` | `无用配置，随便填个值`      |                             |
-| `bootstrap.servers` | `192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092`      | kafka地址                     |
+| `bootstrap.servers` | `$SERVERS`      | kafka地址                     |
 | `security.protocol` | `SASL_PLAINTEXT`      | 固定值                         |
 | `sasl.mechanism` | `PLAIN`      | 固定值                         |
 | `sasl.jaas.config` | `org.apache.kafka.common.security.plain.PlainLoginModule required username="" password="";`      | 固定值，其中的用户名密码将在运行时填充为上面的配置的值 |
@@ -293,10 +293,10 @@ kafkaui地址：http://${kafkaui_host}:8080, 用户名/密码：admin/${配置�
 # 请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性
 docker exec -ti kafka bash
 # 新建topic： test，设置分区数据为3,副本数为2
-kafka-topics.sh --create --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --partitions 3 --replication-factor 2 --command-config /opt/bitnami/kafka/config/producer.properties                                                                                                                                                                                                 
+kafka-topics.sh --create --bootstrap-server $SERVERS --topic test --partitions 3 --replication-factor 2 --command-config /client.properties                                                                                                                                                                                                 
 # 试消息生产者与消费者
-kafka-console-producer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --producer.config /opt/bitnami/kafka/config/producer.properties
- kafka-console-consumer.sh --bootstrap-server 192.168.56.11:9092,192.168.56.13:9092,192.168.56.12:9092 --topic test --consumer.config /opt/bitnami/kafka/config/consumer.properties
+kafka-console-producer.sh --bootstrap-server $SERVERS --topic test --producer.config /client.properties
+kafka-console-consumer.sh --bootstrap-server $SERVERS --topic test --consumer.config /client.properties
 ```
 
 **若参接收到，则安装成功**
@@ -356,7 +356,7 @@ public class KafkaHelper {
      */
     public static synchronized Properties getKafkaConf() throws Exception {
         Properties properties = new Properties();
-        properties.setProperty("bootstrap.servers", "192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092");
+        properties.setProperty("bootstrap.servers", "$SERVERS");
         properties.setProperty("acks", "all");
         properties.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         properties.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
@@ -432,22 +432,24 @@ public class KafkaConsumer {
 ``` shell script
 #0 先进入容器
 docker exec -ti kafka bash
+#1.查看topic列表
+kafka-topics.sh --list --bootstrap-server $SERVERS  --command-config /client.properties
 #1.查看topic明细
-kafka-topics.sh --describe --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --topic test --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh --describe --bootstrap-server $SERVERS --topic test --command-config /client.properties
 
 #2.修改topic：test的消息存储时间为48小时
-kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-configs.sh  --bootstrap-server $SERVERS --alter --entity-name test --entity-type topics --add-config retention.ms=172800000 --command-config /client.properties
 #3.立刻删除过期数据
-kafka-topics.sh --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --topic test --config  cleanup.policy=delete --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh --bootstrap-server $SERVERS --alter --topic test --config  cleanup.policy=delete --command-config /client.properties
 
 #4.修改分区数为3
-kafka-topics.sh --alter --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092  --topic test --partitions 3 --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh --alter --bootstrap-server $SERVERS  --topic test --partitions 3 --command-config /client.properties
 
 #5.修改kafka topic的参数
-kafka-configs.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092 --alter --entity-name my_connect_offsets --entity-type topics --add-config cleanup.policy=compact --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-configs.sh  --bootstrap-server $SERVERS --alter --entity-name my_connect_offsets --entity-type topics --add-config cleanup.policy=compact --command-config /client.properties
 
 #6.查看topic的明细
-kafka-topics.sh  --bootstrap-server 192.168.56.11:9092,192.168.56.12:9092,192.168.56.13:9092  --describe --topic my_connect_offsets --command-config /opt/bitnami/kafka/config/producer.properties
+kafka-topics.sh  --bootstrap-server $SERVERS  --describe --topic my_connect_offsets --command-config /client.properties
 
 ########################### 对权限的操作
 # 列出所有主题的ACL设置
