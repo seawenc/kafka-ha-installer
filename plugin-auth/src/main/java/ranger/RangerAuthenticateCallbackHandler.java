@@ -12,11 +12,11 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.AppConfigurationEntry;
-import org.apache.kafka.common.security.auth.*;
+import org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.kafka.common.security.plain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+ 
 public final class RangerAuthenticateCallbackHandler implements AuthenticateCallbackHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RangerAuthenticateCallbackHandler.class);
@@ -147,8 +147,8 @@ public final class RangerAuthenticateCallbackHandler implements AuthenticateCall
 
     public static void main(String[] args) throws Exception {
         RangerAuthenticateCallbackHandler handler=new RangerAuthenticateCallbackHandler();
-        handler.host="192.168.56.10";
-        handler.authenticate("admin", "aaBB@112233");
+        handler.host="192.168.56.11";
+        handler.authenticate("admin", "aaBB@1122");
     }
 
 }

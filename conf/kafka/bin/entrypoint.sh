@@ -25,10 +25,7 @@ set -e
 
 TMPDIR=${TMPDIR:-/tmp}
 
-# 需要初始化ranger插件
-echo "kafka初始化完成，马上进行ranger插件初始化..."
-# bash /opt/ranger-kafka-plugin/enable-kafka-plugin.sh
-echo "ranger插件初始化完成，马上进行ranger插件初始化..."
+
 
 # JDK truststore location
 JRE_CACERTS_PATH=$JAVA_HOME/lib/security/cacerts
@@ -112,6 +109,11 @@ if [ -n "$USE_SYSTEM_CA_CERTS" ]; then
         true
     fi
 fi
+
+# 需要初始化ranger插件
+echo "kafka初始化完成，马上进行ranger插件初始化..."
+bash /opt/ranger-kafka-plugin/enable-kafka-plugin.sh
+echo "ranger插件初始化完成，马上进行ranger插件初始化..."
 
 # Let's provide a variable with the correct path for tools that want or need to use it
 export JRE_CACERTS_PATH

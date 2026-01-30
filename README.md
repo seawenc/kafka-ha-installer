@@ -24,6 +24,9 @@ docker地址：<https://hub.docker.com/r/bitnami/zookeeper>
 docker地址：<https://hub.docker.com/r/bitnami/kafka>
 
 ## 2.版本更新记录
+**v4.1.0**.2026-01-30
+
+> * 1.将kafka切换为kafka4.1.1
 
 **v3.2.0**.2026-01-28
 
@@ -115,18 +118,15 @@ git clone https://gitee.com/seawenc/kafka-ha-installer.git
 # 找一台可连网已安装docker的服务器,执行以下指令：
 docker pull mysql
 docker pull seawenc/ranger:2.5.0.2
-docker pull bitnami/zookeeper:3.6.3
 # 此鏡像制作參考：dockerfile/Dockerfile.kafka
-docker pull bitnami/kafka:3.9.0
+docker pull apache/kafka:4.1.1
 docker pull provectuslabs/kafka-ui
 docker save mysql | gzip > mysql.gz
 docker save seawenc/ranger:2.5.0.2 | gzip > ranger.gz
-docker save dockeropen.x/bitnami/zookeeper:3.9.4 | gzip > zk.gz
-docker save bitnami/kafka:3.9.0 | gzip > kafka.gz
+docker save apache/kafka:4.1.1 | gzip > kafka.gz
 docker save provectuslabs/kafka-ui | gzip > kafka-ui.gz
 ```
-> 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（zk.gz、kafka.gz、ranger.gz、docker-${DOCKER_VERSION}.tgz,mysql.gz） 
->  zookeeper镜像为自已制作，参考[zookeer升级](docs/upgrade/zookeeper)
+> 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（kafka.gz、ranger.gz、docker-${DOCKER_VERSION}.tgz,mysql.gz）
 
 ### 3.2.目录文件说明
 ```
@@ -136,9 +136,8 @@ docker save provectuslabs/kafka-ui | gzip > kafka-ui.gz
 │   ├── step1_install_docker.sh            : 一键安装docker
 │   ├── step2_install_mysql.sh             : 一键安装mysql
 │   ├── step3_install_ranger.sh            : 一键安装ranger
-│   ├── step4_install_zk.sh                :一键安装zookeeper
-│   ├── step5_install_kafka.sh             :一键安装kafka
-│   ├── step6_install_kafkaui.sh              :一键安装kafkaui(监控工具)
+│   ├── step4_install_kafka.sh             :一键安装kafka
+│   ├── step5_install_kafkaui.sh              :一键安装kafkaui(监控工具)
 │   ├── stop_kafkaui.sh                       :一键停止kafkaui(监控工具)
 │   ├── stop_kafka.sh                      :一键停止所有节点的kafka
 │   ├── stop_zk.sh                         :一键停止所有节点的zookeeper
@@ -148,34 +147,36 @@ docker save provectuslabs/kafka-ui | gzip > kafka-ui.gz
 │   ├── start_kafka.sh                     :一键启动所有节点的kafka
 │   ├── start_kafkaui.sh                      :一键启动kafkaui
 │   ├── check_kafka.sh                     :一键检查所有节点kafka状态
-│   ├── check_zk.sh                        :一键检查所有节点zookeeper状态
-│   └── clear_data.sh                      : 清空所有节点数据（调用请慎重）
+│   └── clear_kafka.sh                      : 清空所有kafka数据（请慎用）
 ├── packages                               : 离线安装包目录，其中文件需参考上一章节自行准备
 ├── conf                                   : 所有的配置文件
 │   ├── docker                             : docker离线安装所需的文件
 │   │    ├── daemon.json                   : docker核心配置文件
 │   │    └── docker.service                : docker服务文件
-│   ├── config.sh                          : 核心配置文件，具体配置项，请看下面介绍
-│   └── jaas.conf                          : jaas认证文件，若不用新加kafka用户，则可不用修改
+│   ├── kafka                              : kafka所需核心配置模板文件
+│   │    ├── bin                           : kafka安装所需新增脚本
+│   │    ├── conf                           : kafka配置文件
+│   │    ├── bins                          : kafka扩展依赖包（ranger插件等）
+│   │    └── docker-compose.yml            : kafka的docker-compose文件
+│   ├── ranger                              : 此目录只有一个[install.properties](conf/ranger/install.properties)文件
+│   └── config.sh                          : 核心配置文件，具体配置项，请看下面介绍
 ├── docs                                   : 项目文档目录
 ├── plugin-auth                            : 权限插件
-│   ├── src                                : 权限插件源码
-│   └── ranger                             : ranger相关插件包
-│      ├─ ranger-2.5.0-kafka-plugin.tar.gz : 安装到kafka的ranger客户端插件
-│      └─ ranger-kafka-plugin-2.5.0.jar    : 安装到ranger中服务端插件（修复了一些bug）
-├── debug                        : kafka与zookeeper调试脚本
+│   ├── build/libs/plugin-auth-1.0.jar     : 权限插件出的jar包
+│   └── src                                : 权限插件源码
+
 ```
 
 ### 3.3.配置文件准备 
 * 1.`conf/config.sh`:
 ```shell script
 ###############################0.参数配置##########################
-# 如果需要自动安装docker,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/
+# 需果需要自动安装docker,需要提前下载放到packages目录中,下载地址：https://download.docker.com/linux/static/stable/x86_64/
 
-# 基本路径，zookeeper与kafka都安装在此目录,请确保此目录有权限
-BASE_PATH=/opt/app/zkafka
+# 基本路径，与kafka都安装在此目录,请确保此目录有权限
+BASE_PATH=/opt/app/kafka-ha
 # 数据存放目录
-DATA_DIR=/opt/app/zkafka/data
+DATA_DIR=/opt/app/data
 ###################### kafka+zookeeper 相关配置
 # kafka地址,格式:  servers[内网地址]="外网地址" （如果没有网外地址，则与内网设置为一致）
 declare -A servers=()
@@ -183,33 +184,33 @@ servers["192.168.56.11"]="192.168.56.11"
 servers["192.168.56.12"]="192.168.56.12"
 servers["192.168.56.13"]="192.168.56.13"
 ssh_port=22
-# kafka内网端口号
-kafka_port=9093
-# kafka外网端口号
-kafka_port_outside=9092
+# kafka内网端口号 v4 版本已写死，若需要修改，请手动修改docker-compose.yml，server.properties
+
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
-# admin账号密码，此密码将使用在zookeeper,及ranger,mysql的默认密码（请修改）
+# admin账号密码，此密码将使用在及ranger,mysql的默认密码（请修改）
+# 将作为kafka，ranger的默认密码，必须包含小写、大写、数字、特殊字符，最小8位
 admin_user_pwd=aaBB@1122
 
 ###################### mysql 数据库信息
 ## 是否需要安装，如果已有mysql,则可修改为false,下面mysql的其它参数改为现有的数据库信息，如果需要安装，则为新库信息
 mysql_need_install=true
-mysql_host=192.168.56.10
+# ！！！如果mysql_need_install=true,则自动安装mysql，ip与ranger_host一致，！！！这里配置mysql_host将无效
+mysql_host=192.168.56.11
 mysql_port=3306
 # 请修改默认密码
 mysql_root_pwd=$admin_user_pwd
 
 ###################### ranger 相关信息，必需安装，所需数据库为：mysql_host
-ranger_host=192.168.56.10
-# 必须包含大小写特殊字符及数字, 否则将无法登录ranger的web-ui,
-ranger_admin_pwd=Ranger@1122
+ranger_host=192.168.56.11
+# 必须跟admin_user_pwd密码一致
+ranger_admin_pwd=$admin_user_pwd
 # ranger数据库信息，如果mysql_need_install=true，则自动新建，否则需要提前创建
 mysql_ranger_dbname=ranger
 mysql_ranger_user=ranger
 # mysql ranger数据库密码,默认使用统一的管理员密码，请修改
 mysql_ranger_pwd=mysql@1122
-##############################################################
+
 ###################### kafkaui相关信息
 # 监控工具kafkaui安装在哪台服务器上,默认是排序后的第一台服务器，若想修改，请直接写死
 kafkaui_need_install=true
@@ -218,8 +219,9 @@ kafkaui_host=$mysql_host
 # kafkaui的登录密码,默认使用统一的管理员密码，请修改
 kafkaui_pwd=$admin_user_pwd
 ```
-* 2.`conf/jaas.conf`: jaas认证文件，若不用新加kafka用户，**则可不用修改**
-* 3.`conf/docker`: docker相关的配置，若无特殊需求，**则可不用修改**
+* 1.`conf/docker`: docker相关的配置，若无特殊需求，**则可不用修改**
+* 2.`conf/kafka/[docker-compose.yml](conf/kafka/docker-compose.yml)`: kafka-docker核心配置文件,按需修改
+* 3.`conf/kafka/conf/[server.properties](conf/kafka/conf/server.properties)`: kafka核心配置文件,按需修改
 
 ### 3.4.开始安装
 
@@ -235,7 +237,7 @@ sh bin/step2_install_mysql.sh
 sh bin/step3_install_ranger.sh
 ```
 > 0. 安装过程中，请仔细阅读每一行日志
-> 1. `kafka`,`zookeeper`,`kafkaui`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
+> 1. `kafka`,`kafkaui`在`bin`目录下都有对应的一键关停/启动脚本,请按需调用
 > 2. 若安装过程中状态检查未通过，则请按提示查看日志，解决后继续
 
 **若执行脚本时报换行符的错(关键字包含：\r)，是因为你用window操作系统打开过，执行以下脚本修复:**
@@ -275,20 +277,18 @@ sed -i 's/\r$//' conf/*.sh
 ![ranger-setting3.jpg](images/ranger-setting3.jpg)  
 > 点击最下面的`test Connection`,若提示`Connection Successful!`，则表示配置成功
 
-#### 3.4.3 zookeeper+kafka安装
+#### 3.4.3 kafka安装
 ```bash
-# 步骤4：安装zookeeper
-sh bin/step4_install_zk.sh
-# 步骤5：安装kafka（安装前请确认ranger被正确配置！！！）-》参考上面章节：《ranger-kafka配置》
-sh bin/step5_install_kafka.sh
-# 步骤6：安装kafkaui
-sh bin/step6_install_kafkaui.sh
+# 步骤4：安装kafka（安装前请确认ranger被正确配置！！！）-》参考上面章节：《ranger-kafka配置》
+sh bin/step4_install_kafka.sh
+# 步骤5：安装kafkaui
+sh bin/step5_install_kafkaui.sh
 ```
 kafkaui地址：http://${kafkaui_host}:8080, 用户名/密码：admin/${配置文件中kafkaui_pwd的值}
 
 ### 3.5.验证安装结果
 
-获得： step3_install_kafka.sh 此脚本的`运行过程中打印出的`**最后三句脚本**，在已安装kafka的节点上执行  
+获得： step4_install_kafka.sh 此脚本的`运行过程中打印出的`**最后三句脚本**，在已安装kafka的节点上执行  
 ```
 # 请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性
 docker exec -ti kafka bash
@@ -451,21 +451,8 @@ kafka-configs.sh  --bootstrap-server $SERVERS --alter --entity-name my_connect_o
 #6.查看topic的明细
 kafka-topics.sh  --bootstrap-server $SERVERS  --describe --topic my_connect_offsets --command-config /client.properties
 
-########################### 对权限的操作
-# 列出所有主题的ACL设置
-kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list
-
-# 列出指定主题的ACL设置
-kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --list --topic test
-
-# 权限设置： 设置允许u1用户对test主题拥有所有权限 --operation支持的操作有：READ、WRITE、DELETE、CREATE、ALTER、DESCRIBE、ALL，示例：
- kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --operation ALL --topic test
-
-# 权限设置： 设置u1用户对topic主题读操作，前者就包含了允许消费者在主题上READ、DESCRIBE以及在消费者组在主题上READ。
- kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --consumer  --topic test
-
-# 权限设置： 设置u1用户对topic主题写操作
- kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --add --allow-principal User:u1 --producer --topic test
+########################### 对权限的操作（）
+请帮ranger上操作
 ```
 
 ### 5.3、ranger-ui的admin账号登录失败
@@ -482,20 +469,6 @@ kafka-acls.sh --authorizer-properties zookeeper.connect=192.168.56.10:2181 --lis
 2024-12-20 03:20:47,282 [http-nio-6080-exec-12] INFO [SpringEventListener.java:109] Login Unsuccessful:kafka | Ip Address:192.168.56.1 | User account is locked
 2024-12-20 03:21:25,783 [http-nio-6080-exec-12] INFO [SpringEventListener.java:109] Login Unsuccessful:kafka | Ip Address:192.168.56.1 | User account is locked
 ```
-
-### 5.5、查看kafka日志有报错：用户不存在
-```bash
-[2025-02-14 02:08:31,042] WARN unable to return groups for user aic (org.apache.hadoop.security.ShellBasedUnixGroupsMapping)
-PartialGroupNameException The user name 'user1' is not found. id: 'user1': no such user
-id: 'user1': no such user
-
-        at org.apache.hadoop.security.ShellBasedUnixGroupsMapping.resolvePartialGroupNames(ShellBasedUnixGroupsMapping.java:294)
-        at org.apache.hadoop.security.ShellBasedUnixGroupsMapping.getUnixGroups(ShellBasedUnixGroupsMapping.java:207)
-        at org.apache.hadoop.security.ShellBasedUnixGroupsMapping.getGroups(ShellBasedUnixGroupsMapping.java:97)
-...
-```
-为正常现象，可以忽略
-
 
 ### 5.6、kafka离线升级
 
@@ -598,6 +571,8 @@ sh run.sh
 v1.x版本原始为非docker版本，现需要全部重新升级到docker版本  
 经验证：升级后，数据无法读取，原因为原来的zookeeper是非加密的，新版本的是加了密码的，新版本读取不到topic的元数据信息
 
+#### 5.6.3、v3.x脚本升级到v4.x
+暂不支持，请重装
 
 ### 5.7、添加一个kafka账号，并赋权
 
@@ -606,8 +581,6 @@ v1.x版本原始为非docker版本，现需要全部重新升级到docker版本
 ![ranger-add-user.jpg](images/ranger-add-user.jpg)
 
 此时新建好的用户就可以登录，但是没有任何权限
-
-
 
 #### 设置策略
 

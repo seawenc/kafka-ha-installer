@@ -4,7 +4,7 @@ apply plugin: 'idea'
 apply plugin: 'com.github.johnrengelman.shadow'
 group = 'ranger-kafka-plugin'
 version = '1.0'
-sourceCompatibility = '1.8'
+sourceCompatibility = '17'
 buildscript {
     repositories {
         mavenLocal()

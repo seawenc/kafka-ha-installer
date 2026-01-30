@@ -22,4 +22,6 @@ if [ ! -f "$LOG_DIR/meta.properties" ]; then
 fi
 
 echo "[$(date)] Starting Kafka server..."
-exec /opt/kafka/bin/kafka-server-start.sh "$CONFIG"
+
+
+exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kafka.properties

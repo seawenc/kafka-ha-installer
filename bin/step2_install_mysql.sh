@@ -20,11 +20,10 @@ MYSQL_FILE_NAME=`ls $installpath/packages/ | grep mysql | grep gz`
 print_log info "################# 安装与启动mysql #################"
 function install_mysql(){
   ssh -p $ssh_port $MYSQL_HOST  "mkdir -p $DATA_DIR/mysql $BASE_PATH/mysql"
-  [[ -f "$installpath/packages/${MYSQL_FILE_NAME}" ]] && scp -P $ssh_port $installpath/packages/${MYSQL_FILE_NAME} $MYSQL_HOST:$BASE_PATH/mysql/
-  [[ -f "$installpath/packages/${MYSQL_FILE_NAME}" ]] && ssh -p $ssh_port $MYSQL_HOST "gunzip -c $BASE_PATH/mysql/${MYSQL_FILE_NAME} | docker load"
-  [[ -f "$installpath/packages/${MYSQL_FILE_NAME}" ]] && ssh -p $ssh_port $MYSQL_HOST "rm -rf $BASE_PATH/mysql/${MYSQL_FILE_NAME}"
+  
+  transfer_and_import_image "$MYSQL_HOST" "mysql" "mysql.gz"
 
-print_log warn "如果当前操作系统为国产操作系统，如Kylin,openEuler，则必须使用镜像：mysql:8.0.36-debian，请手动修复"
+  print_log warn "如果当前操作系统为国产操作系统，如Kylin,openEuler，则必须使用镜像：mysql:8.0.36-debian，请手动修复"
 
   cat > /tmp/run.sh <<EOF
 docker stop mysql

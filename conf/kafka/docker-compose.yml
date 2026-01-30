@@ -3,20 +3,25 @@ services:
     image: apache/kafka:4.1.1
     container_name: kafka
     hostname: kafka
+    user: root
     ports:
+      - "30005:30005"
       - "9091:9091"
       - "9092:9092"
       - "9093:9093"
     volumes:
-      - ./conf/server.properties:/opt/kafka/config/kafka.properties:ro
+      - ./conf/server.properties:/opt/kafka/config/kafka.properties
       - ./conf/jaas.conf:/opt/kafka/config/jaas.conf:ro
       - ./bin/kafka-start.sh:/opt/kafka/start.sh:ro
       - ./conf/client.properties:/client.properties
       - ./bin/check.sh:/check.sh
       - ./bin/entrypoint.sh:/__cacert_entrypoint.sh:ro
+      - ./libs/plugin-auth-1.0.jar:/opt/kafka/libs/plugin-auth-1.0.jar:ro  # ranger
+      - ./libs/ranger-kafka-plugin:/opt/ranger-kafka-plugin # ranger
       - _DATA_DIR_/kafka:/data
     environment:
-      KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/jaas.conf"
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/jaas.conf -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:30005"
       PATH: "/opt/kafka/bin:/opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       SERVERS: "_servers_" #客户端用
+      RANGER_CONF_PATH: "/opt/kafka/config/"
     command: ["/opt/kafka/start.sh"]

@@ -11,17 +11,17 @@ function install_ranger(){
   [ -z $RANGER_FILE_NAME ] && print_log warn "ranger无离线安装包，将进行在线镜像拉取，请确保能访问外网，若需要离线安装，请参考readme.md,手动下载ranger安装包，放到packages目录" && sleep 1
 
   ssh -p $ssh_port $ranger_host  "mkdir -p $DATA_DIR/ranger $BASE_PATH/ranger"
-  [[ -f "$installpath/packages/${RANGER_FILE_NAME}" ]] && scp -P $ssh_port $installpath/packages/${RANGER_FILE_NAME} $ranger_host:$BASE_PATH/ranger/
-  [[ -f "$installpath/packages/${RANGER_FILE_NAME}" ]] && print_log info "镜像加载中,请等待..." && ssh -p $ssh_port $ranger_host "gunzip -c $BASE_PATH/ranger/${RANGER_FILE_NAME} | docker load"
-  [[ -f "$installpath/packages/${RANGER_FILE_NAME}" ]] && ssh -p $ssh_port $ranger_host "rm -rf $BASE_PATH/ranger/${RANGER_FILE_NAME}"
-  # 如果是一键安装，则必须与ranger放在一起
+
+  transfer_and_import_image "$ranger_host" "mysql" "mysql.gz"
+  
+  # 如果mysql是一键安装，则mysql必须与ranger放在一起
   MYSQL_HOST=`[ "$mysql_need_install" = "true" ] && echo "mysql" || echo "$mysql_host"`
-  MYSQL_PORT=`[ "$mysql_need_install" = "true" ] && echo "3306" || echo "$mysql_host"`
+  MYSQL_PORT=`[ "$mysql_need_install" = "true" ] && echo "3306" || echo "$mysql_port"`
   
   echo "mysql地址为：$MYSQL_HOST:$MYSQL_PORT"
   
   # 准备配置文件
-  cat $installpath/conf/ranger-install.properties > /tmp/install.properties
+  cat $installpath/conf/ranger/install.properties > /tmp/install.properties
   sed -i "s/--MYSQL_HOST--/$MYSQL_HOST/g" /tmp/install.properties
   sed -i "s/--MYSQL_PORT--/$MYSQL_PORT/g" /tmp/install.properties
   sed -i "s/--RANGER_ADMIN_PWD--/$ranger_admin_pwd/g" /tmp/install.properties
@@ -30,7 +30,7 @@ function install_ranger(){
   sed -i "s/--RANGER_DBPWD--/$mysql_ranger_pwd/g" /tmp/install.properties
   scp -P $ssh_port /tmp/install.properties $ranger_host:$BASE_PATH/ranger/
   # 原ranger-kafka插件只支持kerberos认证，以下为修复后的包
-  scp -P $ssh_port $installpath/plugin-auth/ranger/ranger-kafka-plugin-2.5.0.jar $ranger_host:$BASE_PATH/ranger/
+  scp -P $ssh_port $installpath/conf/ranger/ranger-kafka-plugin-2.5.0.jar $ranger_host:$BASE_PATH/ranger/
 
   scp -P $ssh_port /tmp/install.properties $ranger_host:$BASE_PATH/ranger/
 
