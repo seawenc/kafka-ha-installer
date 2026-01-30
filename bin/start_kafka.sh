@@ -10,5 +10,5 @@ do
 done
 }
 start_kafka
-print_log info "#################等待kafka启动 ###############################"
-watch -d -n 5 bash $installpath/bin/check_kafka.sh
+print_log info "#################等待kafka启动（10秒刷新一次） ###############################"
+watch -d -n 10 bash $installpath/bin/check_kafka.sh

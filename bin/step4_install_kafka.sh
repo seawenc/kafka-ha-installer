@@ -53,9 +53,6 @@ install_kafka
 print_log info "所有服务初始化已完成，开始启动服务..."
 sh start_kafka.sh
 
-print_log info "#################第三步:等待kafka启动（10s刷新一次） ###############################"
-watch -d -n 10 bash $installpath/bin/check_kafka.sh
-
 print_log warn "若此集群第一次启动失败，可试试执行脚本 bin/start_kafka.sh"
 print_log warn "请手动在其中两台服务器，执行以下指令进入容器后进行测试可用性"
 print_log info "docker exec -ti kafka bash"
