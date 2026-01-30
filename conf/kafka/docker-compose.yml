@@ -26,3 +26,4 @@ services:
       SERVERS: "_servers_" # 客户端指令用
       RANGER_CONF_PATH: "/opt/kafka/config/"
     command: ["/opt/kafka/start.sh"]
+    restart: unless-stopped
