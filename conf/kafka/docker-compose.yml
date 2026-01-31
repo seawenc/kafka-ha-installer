@@ -10,8 +10,9 @@ services:
       - "9092:9092"
       - "9093:9093"
     volumes:
-      - ./conf/server.properties:/opt/kafka/config/kafka.properties
+      - ./conf/server.sh:/opt/kafka/config/server.properties # server.sh 正确的后缀应为 .properties，但是这格式会乱码
       - ./conf/jaas.conf:/opt/kafka/config/jaas.conf:ro
+      - ./conf/log4j.properties:/opt/kafka/config/log4j.properties
       - ./bin/kafka-start.sh:/opt/kafka/start.sh:ro
       - ./conf/client.properties:/client.properties
       - ./bin/check.sh:/check.sh
@@ -20,10 +21,13 @@ services:
       - ./libs/ranger-kafka-plugin:/opt/ranger-kafka-plugin # ranger
       - _DATA_DIR_/kafka:/data
     environment:
-      #调试时开启 KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/jaas.conf -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:30005"
+      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:/opt/kafka/config/log4j.properties"
+      #KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/jaas.conf -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:30005" #调试时开启 
       KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/jaas.conf"
       PATH: "/opt/kafka/bin:/opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       SERVERS: "_servers_" # 客户端指令用
       RANGER_CONF_PATH: "/opt/kafka/config/"
+      RANGER_AUTH_HOST: "192.168.56.11"
+      RANGER_AUTH_PORT: "6080"
     command: ["/opt/kafka/start.sh"]
     restart: unless-stopped

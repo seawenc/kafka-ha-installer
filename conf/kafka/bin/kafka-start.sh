@@ -1,18 +1,9 @@
 #!/bin/bash
 
-set -e
-
-CONFIG="/opt/kafka/config/kafka.properties"
+CONFIG="/opt/kafka/config/server.properties"
 LOG_DIR="/data"
 
-# # 创建必要的客户端配置文件
-# cat > /tmp/client.conf << EOF
-# security.protocol=SASL_PLAINTEXT
-# sasl.mechanism=PLAIN
-# sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
-#     username="admin" \
-#     password="admin-secret";
-# EOF
+set -e
 
 if [ ! -f "$LOG_DIR/meta.properties" ]; then
   echo "[$(date)] Formatting Kafka storage with new cluster ID..."
@@ -23,5 +14,4 @@ fi
 
 echo "[$(date)] Starting Kafka server..."
 
-
-exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kafka.properties
+exec /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties

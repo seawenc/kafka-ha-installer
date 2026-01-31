@@ -22,29 +22,44 @@ do
   # 同步镜像
   transfer_and_import_image "$ip" "apache/kafka" "kafka.gz"
 
-  # 设置配置文件中的变量
-  scp -r -P $ssh_port $installpath/conf/kafka/* $ip:$BASE_PATH/kafka/
+  # 在本机 /tmp 目录中创建临时工作目录
+  TMP_DIR="/tmp/kafka_config_$ip"
+  mkdir -p  $TMP_DIR && rm -rf $TMP_DIR/*
+  # 将配置文件复制到本机临时目录
+  cp -r $installpath/conf/kafka/* $TMP_DIR/
+  # 在本机修改配置文件
+  sed -i "s@_DATA_DIR_@${DATA_DIR}@g" $TMP_DIR/docker-compose.yml
+  sed -i "s@_servers_@${CLIENT_SERVERS}@g" $TMP_DIR/docker-compose.yml
   
-  ssh -p $ssh_port $ip "sed -i 's@_DATA_DIR_@${DATA_DIR}@g' $BASE_PATH/kafka/docker-compose.yml"
-  ssh -p $ssh_port $ip "sed -i 's@_servers_@${CLIENT_SERVERS}@g' $BASE_PATH/kafka/docker-compose.yml"
+  sed -i "s/_KAFKA_PWD_/${admin_user_pwd}/g" $TMP_DIR/conf/jaas.conf
+  sed -i "s/_KAFKA_PWD_/${admin_user_pwd}/g" $TMP_DIR/conf/client.properties
+  sed -i "s/_servers_/${CLIENT_SERVERS}/g" $TMP_DIR/conf/client.properties
   
-  ssh -p $ssh_port $ip "sed -i 's/_KAFKA_PWD_/${admin_user_pwd}/g' $BASE_PATH/kafka/conf/jaas.conf"
-  ssh -p $ssh_port $ip "sed -i 's/_KAFKA_PWD_/${admin_user_pwd}/g' $BASE_PATH/kafka/conf/client.properties"
-  ssh -p $ssh_port $ip "sed -i 's/_servers_/${CLIENT_SERVERS}/g' $BASE_PATH/kafka/conf/client.properties"
+  sed -i "s/_nodeId_/${FOR_SEQ}/g" $TMP_DIR/conf/server.sh
+  sed -i "s/_ip_/${ip}/g" $TMP_DIR/conf/server.sh
+  sed -i "s/_extIp_/${servers[$ip]}/g" $TMP_DIR/conf/server.sh
+  sed -i "s/_CLUSTER_SERVERS_/${CLUSTER_SERVERS}/g" $TMP_DIR/conf/server.sh
+  sed -i "s/_kafka_msg_storage_hours_/${kafka_msg_storage_hours}/g" $TMP_DIR/conf/server.sh
+  sed -i "s/_ranger_host_/${ranger_host}/g" $TMP_DIR/run.sh
   
-  ssh -p $ssh_port $ip "sed -i 's/_nodeId_/${FOR_SEQ}/g' $BASE_PATH/kafka/conf/server.properties"
-  ssh -p $ssh_port $ip "sed -i 's/_ip_/${ip}/g' $BASE_PATH/kafka/conf/server.properties"
-  ssh -p $ssh_port $ip "sed -i 's/_extIp_/${servers[$ip]}/g' $BASE_PATH/kafka/conf/server.properties"
-  ssh -p $ssh_port $ip "sed -i 's/_CLUSTER_SERVERS_/${CLUSTER_SERVERS}/g' $BASE_PATH/kafka/conf/server.properties"
-  ssh -p $ssh_port $ip "sed -i 's/_kafka_msg_storage_hours_/${kafka_msg_storage_hours}/g' $BASE_PATH/kafka/conf/server.properties"
+  # 初始化 ranger 相关组件（在本机完成）
+  mkdir -p $TMP_DIR/libs $TMP_DIR/bin
+  (
+    cd $TMP_DIR/libs
+    tar -xzf ranger-2.5.0-kafka-plugin.tar.gz
+    mv ranger-2.5.0-kafka-plugin ranger-kafka-plugin
+    rm -rf *kafka-plugin.tar.gz
+    cp fix/* ranger-kafka-plugin/install/lib/
+  )
+  sed -i "s@POLICY_MGR_URL=@POLICY_MGR_URL=http://${ranger_host}:6080@g" $TMP_DIR/libs/ranger-kafka-plugin/install.properties
+  sed -i "s@REPOSITORY_NAME=@REPOSITORY_NAME=kafka-ha-policy@g" $TMP_DIR/libs/ranger-kafka-plugin/install.properties
+  sed -i "s@COMPONENT_INSTALL_DIR_NAME=@COMPONENT_INSTALL_DIR_NAME=/opt/kafka/@g" $TMP_DIR/libs/ranger-kafka-plugin/install.properties
+  
+  # 将修改后的配置文件 scp 到目标服务器
+  scp -q -r -P $ssh_port $TMP_DIR/* $ip:$BASE_PATH/kafka/
+  # 清理本机临时目录
+  rm -rf $TMP_DIR
 
-  # 初始化ranger相关组件
-  print_log info "文件配置完成，开始初始化ranger权限插件"
-  ssh -p $ssh_port $ip  "mkdir -p $BASE_PATH/kafka/libs $BASE_PATH/kafka/bin"
-  ssh -p $ssh_port $ip "cd $BASE_PATH/kafka/libs && tar -xzf ranger-2.5.0-kafka-plugin.tar.gz && mv ranger-2.5.0-kafka-plugin ranger-kafka-plugin && rm -rf *kafka-plugin.tar.gz && cp fix/* ranger-kafka-plugin/install/lib/"
-  ssh -p $ssh_port $ip "sed 's@POLICY_MGR_URL=@POLICY_MGR_URL=http://${ranger_host}:6080@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
-  ssh -p $ssh_port $ip "sed 's@REPOSITORY_NAME=@REPOSITORY_NAME=kafka-ha-policy@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
-  ssh -p $ssh_port $ip "sed 's@COMPONENT_INSTALL_DIR_NAME=@COMPONENT_INSTALL_DIR_NAME=/opt/kafka/@g' -i $BASE_PATH/kafka/libs/ranger-kafka-plugin/install.properties"
   ssh -p $ssh_port $ip "chmod 777 -R $BASE_PATH/kafka"
 done
 }

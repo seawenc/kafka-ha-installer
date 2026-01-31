@@ -2,7 +2,7 @@
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'com.github.johnrengelman.shadow'
-group = 'ranger-kafka-plugin'
+group = 'plugin-auth'
 version = '1.0'
 sourceCompatibility = '17'
 buildscript {

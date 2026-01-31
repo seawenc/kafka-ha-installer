@@ -7,4 +7,14 @@
 > 源码在`git@github.com:seawenc/ranger.git`中的`release-ranger-2.5.0-cqrd-fix`分支
 
 ## 打包：
-gradle 7.5执行：gradle shadowJar
+gradle 7.5执行：
+```bash
+# 先切换gradle版本为7.4,jdk为17
+export PATH="home/chengsheng/.opencode/bin:/opt/apps/miniforge3/envs/py312/bin:/opt/apps/miniforge3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin:/opt/apps/jdk-17.0.11/bin:/opt/apps/apache-maven-3.9.9/bin:/opt/apps/gradle-7.4/bin:/opt/apps/node-v20.18.1-linux-x64/bin:/opt/apps/miniforge3/bin:/opt/app/clojure/bin"
+export JAVA_HOME=/opt/apps/jdk-17.0.11
+gradle shadowJar
+```
+
+scp /data/share/kafka-ha-installer/conf/kafka/libs/plugin-auth-1.0.jar 192.168.56.11:/opt/app/kafka-ha/kafka/libs/
+scp /data/share/kafka-ha-installer/conf/kafka/libs/plugin-auth-1.0.jar 192.168.56.12:/opt/app/kafka-ha/kafka/libs/
+scp /data/share/kafka-ha-installer/conf/kafka/libs/plugin-auth-1.0.jar 192.168.56.13:/opt/app/kafka-ha/kafka/libs/
