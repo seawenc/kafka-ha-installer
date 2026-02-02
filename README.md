@@ -390,8 +390,8 @@ kafka-configs.sh  --bootstrap-server $SERVERS --alter --entity-name my_connect_o
 #6.查看topic的明细
 kafka-topics.sh  --bootstrap-server $SERVERS  --describe --topic my_connect_offsets --command-config /client.properties
 
-########################### 对权限的操作（）
-请帮ranger上操作
+########################### 对权限的操作
+请在ranger上操作
 ```
 
 ### 5.3、ranger-ui的admin账号登录失败
