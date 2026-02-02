@@ -29,8 +29,9 @@ docker地址：<https://xuanyuan.cloud/r/apache/kafka>
 > * 2、将bitnami/kafka切换为apache/kafka（bitnami/kafka已从官网删除，不会提供后续升级服务）
 > * 3、删除zookeeper组件，kafka4.1.1已内置相关组件（解决zookeeper安全漏洞问题）
 > * 4、解决干扰日志问题(删除运行过程中报hadoop权限错误异常（无影响），删除ranger海量策略拉取日志)
-> * 5、依赖的ranger未启动完成时，kafka无法启动问题(服务器同时重启时有此问题)
-> * 6、解决服务器性能过低时，集群无法启动问题
+> * 5、依赖的ranger未启动完成时，**kafka集群无法启动问题**(服务器同时重启时有此问题)
+> * 6、解决服务器性能过低时，**kafka集群无法启动问题**
+> * 7、简化kafka测试指令，不再显式指定集群ip
 
 **历史版本信息**
 [versions.md](docs/versions.md)
