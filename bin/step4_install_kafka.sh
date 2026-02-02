@@ -30,6 +30,7 @@ do
   # 在本机修改配置文件
   sed -i "s@_DATA_DIR_@${DATA_DIR}@g" $TMP_DIR/docker-compose.yml
   sed -i "s@_servers_@${CLIENT_SERVERS}@g" $TMP_DIR/docker-compose.yml
+  sed -i "s@_ranger_host_@${ranger_host}@g" $TMP_DIR/docker-compose.yml
   
   sed -i "s/_KAFKA_PWD_/${admin_user_pwd}/g" $TMP_DIR/conf/jaas.conf
   sed -i "s/_KAFKA_PWD_/${admin_user_pwd}/g" $TMP_DIR/conf/client.properties

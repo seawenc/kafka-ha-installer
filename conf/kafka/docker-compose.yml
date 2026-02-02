@@ -27,7 +27,7 @@ services:
       PATH: "/opt/kafka/bin:/opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       SERVERS: "_servers_" # 客户端指令用
       RANGER_CONF_PATH: "/opt/kafka/config/"
-      RANGER_AUTH_HOST: "192.168.56.11"
+      RANGER_AUTH_HOST: "_ranger_host_"
       RANGER_AUTH_PORT: "6080"
     command: ["/opt/kafka/start.sh"]
     restart: unless-stopped

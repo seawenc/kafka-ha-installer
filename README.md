@@ -1,7 +1,7 @@
 # v3.一键安装安装使用指南
 
 ## 0.整体架构  
-![framework.jpg](images/framework.jpg)  
+![framework.jpg](images/framework.png)  
 ## 1.说明
 本方案，需要至少4台服务器，每台服务器需要安装kafka与zookeeper，权限/与运维工具将安装在第一台，如果想要安装单机版本,有以下两种方案：
 * [kafka3.x单机方案](./docs/kafka3.x-single-docker.md)
@@ -26,9 +26,10 @@ docker地址：<https://hub.docker.com/r/bitnami/kafka>
 **v4.1.0**.2026-01-30
 
 > * 1、将kafka切换为kafka4.1.1
-> * 2、删除zookeeper组件，kafka4.1.1已内置
+> * 2、删除zookeeper组件，kafka4.1.1已内置相关组件
 > * 3、解决干扰日志问题
 > * 4、依赖的ranger未启动完成时，kafka无法启动问题(服务器同时重启时症状)
+> * 5、端口号
 
 **历史版本信息**
 [versions.md](docs/versions.md)
