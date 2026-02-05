@@ -58,10 +58,13 @@ docker pull seawenc/ranger:2.5.0.2
 # 此鏡像制作參考：dockerfile/Dockerfile.kafka
 docker pull apache/kafka:4.1.1
 docker pull provectuslabs/kafka-ui
-docker save mysql | gzip > mysql.gz
-docker save seawenc/ranger:2.5.0.2 | gzip > ranger.gz
-docker save apache/kafka:4.1.1 | gzip > kafka.gz
-docker save provectuslabs/kafka-ui | gzip > kafka-ui.gz
+docker save mysql | gzip > packages/mysql.gz
+docker save seawenc/ranger:2.5.0.2 | gzip > packages/ranger.gz
+docker save apache/kafka:4.1.1 | gzip > packages/kafka.gz
+docker save provectuslabs/kafka-ui | gzip > packages/kafka-ui.gz
+# 将源码与压缩包一起打包，用于离线安装
+tar -czvf kafka-ha-installer.tgz --exclude='.git' --exclude='.idea' --exclude='kafka-ha-installer/plugin-auth'  kafka-ha-installer
+
 ```
 > 获得到镜像压缩包后，将文件放到**本脚本的packages目录下**（kafka.gz、ranger.gz、docker-${DOCKER_VERSION}.tgz,mysql.gz）
 
@@ -166,8 +169,9 @@ kafkaui_pwd=$admin_user_pwd
 ```shell script
 # 步骤0：配置服务器之前的免密
 sh bin/step0_unpwd.sh
-# 步骤1：安装docker（若已安装，可跳过）
-sh bin/step1_install_docker.sh
+# 步骤1：安装docker
+sh bin/step1_install_docker.sh # 默认只安装kafka节点
+sh bin/step1_install_docker.sh {其它节点ip}  #指定节点安装docker
 # 步骤2：安装mysql（若有mysql资源，可跳过）
 sh bin/step2_install_mysql.sh
 # 步骤3：安装ranger

@@ -21,7 +21,7 @@ function install_kafkaui(){
   
   transfer_and_import_image "$kafkaui_host" "kafkaui" "kafkaui.gz"
 
-  broker_list=`echo "${!servers[@]}"| sed "s# #:$kafka_port,#g" | sed "s#\\$#:$kafka_port#g"`
+  broker_list=`echo "${!servers[@]}"| sed "s# #:9093,#g" | sed "s#\\$#:9093#g"`
   cat > /tmp/run.sh <<EOF
 docker stop kafkaui
 docker rm kafkaui
