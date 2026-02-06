@@ -12,7 +12,7 @@ function install_ranger(){
 
   ssh -p $ssh_port $ranger_host  "mkdir -p $DATA_DIR/ranger $BASE_PATH/ranger"
 
-  transfer_and_import_image "$ranger_host" "mysql" "mysql.gz"
+  transfer_and_import_image "$ranger_host" "ranger" "ranger.gz"
   
   # 如果mysql是一键安装，则mysql必须与ranger放在一起
   MYSQL_HOST=`[ "$mysql_need_install" = "true" ] && echo "mysql" || echo "$mysql_host"`
