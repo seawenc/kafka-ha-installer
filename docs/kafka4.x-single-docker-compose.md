@@ -57,35 +57,59 @@ exec /opt/kafka/bin/kafka-server-start.sh "$CONFIG"
 
 ### conf/server.properties
 ```properties
+# === KRaft核心配置（单节点）===
 process.roles=broker,controller
 node.id=1
 controller.quorum.voters=1@localhost:9091
 controller.listener.names=CONTROLLER
 
-listeners=CONTROLLER://:9091,INTERNAL://:9093,EXTERNAL://:9092
+# === 监听器配置（保留你的双IP）===
+listeners=CONTROLLER://0.0.0.0:9091,INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
 advertised.listeners=INTERNAL://{内网IP}:9093,EXTERNAL://{外网IP}:9092
 listener.security.protocol.map=CONTROLLER:SASL_PLAINTEXT,INTERNAL:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
 
-inter.broker.listener.name=INTERNAL
-sasl.mechanism.inter.broker.protocol=PLAIN
+# === SASL/PLAIN认证 ===
 sasl.enabled.mechanisms=PLAIN
+sasl.mechanism.inter.broker.protocol=PLAIN
+inter.broker.listener.name=INTERNAL
 
 # 控制器SASL配置
 controller.listener.security.protocol=SASL_PLAINTEXT
 sasl.mechanism.controller.protocol=PLAIN
 
+# === 【简化版】ACL配置 - admin拥有所有权限 ===
 authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 authorizer.standard.enable.acl=true
-authorizer.standard.allow.everyone.if.no.acl.found=false
 
-# 超级用户配置
+# 【关键】允许所有用户（实际上所有客户端都使用admin账号）
+authorizer.standard.allow.everyone.if.no.acl.found=true
+
+# 超级用户（拥有所有权限）
 super.users=User:admin
 
-# KRaft特定配置
-early.start.listeners=CONTROLLER
+# KRaft特殊配置：豁免admin的ACL检查
 metadata.authorizer.acl.exempt.principals=User:admin
 
-log.dirs=/data
+# === 单节点特有配置 ===
+offsets.topic.replication.factor=1
+transaction.state.log.replication.factor=1
+transaction.state.log.min.isr=1
+default.replication.factor=1
+num.partitions=3
+
+# 内部主题配置
+offsets.topic.num.partitions=50
+group.initial.rebalance.delay.ms=0
+
+# === 数据目录 ===
+log.dirs=/data/kafka-logs
+
+# === 网络配置 ===
+num.network.threads=3
+num.io.threads=8
+socket.send.buffer.bytes=102400
+socket.receive.buffer.bytes=102400
+socket.request.max.bytes=104857600
 ```
 > 请替换`{内网IP}`和`{外网IP}`为实际IP
 
