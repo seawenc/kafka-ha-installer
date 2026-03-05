@@ -102,7 +102,7 @@ offsets.topic.num.partitions=50
 group.initial.rebalance.delay.ms=0
 
 # === 数据目录 ===
-log.dirs=/data/kafka-logs
+log.dirs=/data
 
 # === 网络配置 ===
 num.network.threads=3
