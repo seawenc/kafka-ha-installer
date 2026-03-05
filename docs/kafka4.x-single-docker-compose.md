@@ -18,6 +18,7 @@ services:
       - ./conf/server.properties:/opt/kafka/config/kafka.properties
       - ./conf/kafka_server_jaas.conf:/opt/kafka/config/kafka_server_jaas.conf
       - ./bin/start.sh:/opt/kafka/start.sh:ro
+      - ./logs:/opt/kafka/logs
       - ./data:/data
     environment:
       KAFKA_OPTS: "-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
@@ -111,6 +112,7 @@ Client {
 if [ ! -d "./data" ]; then
     echo -e "[WARN] data 目录不存在，创建目录,并初始化..."
     mkdir -p ./data && sudo chown -R 1000:1000 ./data && sudo chmod -R 755 ./data
+    mkdir -p ./logs && sudo chown -R 1000:1000 ./logs && sudo chmod -R 755 ./logs
 fi
 
 docker-compose stop
