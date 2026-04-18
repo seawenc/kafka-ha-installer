@@ -51,6 +51,7 @@ do
     mv ranger-2.5.0-kafka-plugin ranger-kafka-plugin
     rm -rf *kafka-plugin.tar.gz
     cp fix/* ranger-kafka-plugin/install/lib/
+    cp fix/* ranger-kafka-plugin/lib/ranger-kafka-plugin-impl/
   )
   sed -i "s@POLICY_MGR_URL=@POLICY_MGR_URL=http://${ranger_host}:6080@g" $TMP_DIR/libs/ranger-kafka-plugin/install.properties
   sed -i "s@REPOSITORY_NAME=@REPOSITORY_NAME=kafka-ha-policy@g" $TMP_DIR/libs/ranger-kafka-plugin/install.properties

@@ -23,6 +23,10 @@ docker地址：<https://xuanyuan.cloud/r/apache/kafka>
 
 ## 2.版本更新记录
 
+**v4.1.1**.2026-04-18
+
+> * 1、解决kafka4与ranger2.5兼容性问题（有隐患），现已将客户端插件升级到ranger2.8，服务端未升级
+
 **v4.1.0**.2026-01-30
 
 > * 1、将kafka切换为kafka4.1.1（修复低版本已知漏洞）
@@ -616,4 +620,15 @@ ufw allow 6080/tcp
 ufw allow 8080/tcp
 
 ufw reload
+```
+
+## ranger插件升级
+
+```jshelllanguage
+cd /opt/app/kafka-ha/kafka/libs/
+cp /data/share/kafka-ha-installer/conf/kafka/libs/ranger-2.8.0-kafka-plugin.tar.gz  ./
+
+tar -xzf ranger-2.8.0-kafka-plugin.tar.gz 
+mv ranger-kafka-plugin ranger-kafka-plugin2.5
+mv ranger-2.8.0-kafka-plugin ranger-kafka-plugin
 ```

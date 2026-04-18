@@ -17,7 +17,7 @@ ssh_port=22
 # kafka消息生存时间（单位小时）
 kafka_msg_storage_hours=84
 # admin账号密码，此密码将使用在及ranger,mysql的默认密码（请修改）
-# 将作为kafka，ranger的默认密码，必须包含小写、大写、数字、特殊字符，最小8位
+# 将作为kafka，ranger的默认密码，必须包含小写、大写、数字、特殊字符，最小8位,不能包含“/”
 admin_user_pwd=aaBB@1122
 
 ###################### mysql 数据库信息
