@@ -581,6 +581,32 @@ docker pull mysql:8.0.36-debian
 
 参考：[zookeeper升级](docs/upgrade/zookeeper)
 
+### 5.12、ranger账号被锁定
+
+
+**问题现象：** ranger登录不上，请执行以下命令
+**根因查找：**
+```bash
+# 查看日志：
+tail -100f ews/logs/ranger-admin-ranger-.log
+# 可以看到日志：Login Unsuccessful:admin ...
+```
+**解决方法：**
+将ranger容器中的run.sh脚本copy出来修改一下：
+
+第一步：cp出数据
+
+```bash
+docker cp ranger:/opt/ranger/admin/run.sh ./adminrun.sh
+```
+
+第二步：修改adminrun.sh脚本：  
+倒数第二行加上："sed '2i<property><name>ranger.admin.login.autolock.enabled</name><value>false</value></property>' -i ./ews/webapp/WEB-INF/classes/conf/ranger-admin-site.xml"
+
+第三步：run.sh文件中添加挂载"-v ${PWD}/adminrun.sh:/opt/app/ranger-admin/run.sh"
+
+第四步：重启ranger,执行："bash run.sh"
+
 ## 8.安全
 
 ### 开启防火墙
@@ -632,3 +658,4 @@ tar -xzf ranger-2.8.0-kafka-plugin.tar.gz
 mv ranger-kafka-plugin ranger-kafka-plugin2.5
 mv ranger-2.8.0-kafka-plugin ranger-kafka-plugin
 ```
+
