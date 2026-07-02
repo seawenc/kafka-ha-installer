@@ -601,7 +601,10 @@ docker cp ranger:/opt/ranger/admin/run.sh ./adminrun.sh
 ```
 
 第二步：修改adminrun.sh脚本：  
-倒数第二行加上："sed '2i<property><name>ranger.admin.login.autolock.enabled</name><value>false</value></property>' -i ./ews/webapp/WEB-INF/classes/conf/ranger-admin-site.xml"
+倒数第二行加上：
+```bash
+sed '2i<property><name>ranger.admin.login.autolock.enabled</name><value>false</value></property>' -i ./ews/webapp/WEB-INF/classes/conf/ranger-admin-site.xml
+```
 
 第三步：run.sh文件中添加挂载"-v ${PWD}/adminrun.sh:/opt/app/ranger-admin/run.sh"
 
